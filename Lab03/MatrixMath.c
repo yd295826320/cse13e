@@ -210,34 +210,7 @@ void MatrixSubmatrix(int i, int j, float mat[3][3], float result[2][2])
     }
     
 }
-/**
- * for ( row = 0;row < DIM; row++){                //inside if equal to i and j then skp;
-        for ( col = 0; col < DIM; col++){
-            if (row == i || col == j){
-                 continue; 
-            }
-            else{
-                for ( a = 0; a < 2; a++){                
-                    for ( b = 0; b < 2; b++){
-                        result[a][b] += mat[row][col];  
-                    }
-                }
-            }
-        }
-    }
- * MatrixDeterminant calculates the determinant of a 3x3 matrix 
- * and returns the value as a float.
- * @param: mat, a pointer to a 2x2 matrix
- * @return: the determinant of mat
- * mat is not modified by this function.
- * 
- float MatrixDeterminant2x2(int i, int j, float mat[3][3])
-{
-    float det2;
-    MatrixSubmatrix(int i, int j, float mat[3][3], float result[2][2]);
-    det2 = result[0][0] * result[1][1] + result[0][1] * result[1][0];
-    return det2;
-}*/
+
 
 /**
  * MatrixDeterminant calculates the determinant of a 3x3 matrix 
@@ -256,30 +229,17 @@ float MatrixDeterminant(float mat[3][3])
     float result_2[2][2] = {{0,0},{0,0}};
     float result_3[2][2] = {{0,0},{0,0}};
     MatrixSubmatrix(0, 0, mat, result_1);
-    det1 = (result_1[0][0] * result_1[1][1]) + (result_1[0][1] * result_1[1][0]);
+    det1 = (result_1[0][0] * result_1[1][1]) - (result_1[0][1] * result_1[1][0]);
     MatrixSubmatrix(0, 1, mat, result_2);
-    det2 = (result_2[0][0] * result_2[1][1]) + (result_2[0][1] * result_2[1][0]);
+    det2 = (result_2[0][0] * result_2[1][1]) - (result_2[0][1] * result_2[1][0]);
     MatrixSubmatrix(0, 2, mat, result_3);
-    det3 = (result_3[0][0] * result_3[1][1]) + (result_3[0][1] * result_3[1][0]);
+    det3 = (result_3[0][0] * result_3[1][1]) - (result_3[0][1] * result_3[1][0]);
     
     det = det1 * mat[0][0] - det2 * mat[0][1] + det3 * mat[0][2];
     
     return det;
 }
-/* int i;
-    int j;
-    float x;
-    float y;
-    float z;
-    float det;
-    float det2;
-    det2 = MatrixDeterminant2x2(int i = 0, int j = 0, float mat[3][3]);
-    x = mat[0][0] * det2;
-    det2 = MatrixDeterminant2x2(int i = 0, int j = 1, float mat[3][3]);
-    y = mat[0][1] * det2;
-    det2 = MatrixDeterminant2x2(int i = 0, int j = 2, float mat[3][3]);
-    z = mat[0][2] * det2;
-    det = x - y + z;
+/** 
  * MatrixInverse calculates the inverse of a matrix and
  * "returns" the result by modifying the second argument.
  * @param: mat, a pointer to a 3x3 matrix
@@ -290,7 +250,7 @@ float MatrixDeterminant(float mat[3][3])
 void MatrixInverse(float mat[3][3], float result[3][3]) 
 {
     float cofactor[DIM][DIM] = {{0,0,0},{0,0,0},{0,0,0}};
-    float det;
+    float det = 0;
     float x = 0;
     float result_sub[2][2] = {{0,0},{0,0}};
     int row = 0, col = 0, det1 = 0;
@@ -298,13 +258,13 @@ void MatrixInverse(float mat[3][3], float result[3][3])
         for (col = 0; col < DIM; col++){
             if ((row + col) % 2 == 0){
                 MatrixSubmatrix(row, col, mat, result_sub);
-                det1 = result_sub[0][0] * result_sub[1][1] + result_sub[0][1] * result_sub[1][0];
-                cofactor[row][col] = det1; 
+                det1 = (result_sub[0][0] * result_sub[1][1]) - (result_sub[0][1]) * (result_sub[1][0]);
+                cofactor[col][row] = det1; 
             }
             else{
                 MatrixSubmatrix(row, col, mat, result_sub);
-                det1 = result_sub[0][0] * result_sub[1][1] + result_sub[0][1] * result_sub[1][0];
-                cofactor[row][col] = -1 * det1;
+                det1 = (result_sub[0][0] * result_sub[1][1]) - (result_sub[0][1] * result_sub[1][0]);
+                cofactor[col][row] = -1 * det1;
             }
         }
     }
@@ -323,15 +283,21 @@ void MatrixInverse(float mat[3][3], float result[3][3])
  *  should handle numbers as large as 999.0 or -999.0
  */
 void MatrixPrint(float mat[3][3])
-
 {
+    int row = 0;
+    int col = 0;
     printf("----------------------------------\n");
-    printf("| %f | %f | %f |\n",mat[0][0],mat[0][1],mat[0][2]);
+     for ( row = 0; row < DIM; row++){
+        for ( col = 0; col < DIM; col++){
+            
+            printf("| %f ",mat[row][col]);
+            if (col == 2){
+                printf("|");
+                printf("\n");
+            }
+        }
+    }
     printf("----------------------------------\n");
-    printf("| %f | %f | %f |\n",mat[1][0],mat[1][1],mat[1][2]);
-    printf("----------------------------------\n");
-    printf("| %f | %f | %f |\n",mat[2][0],mat[2][1],mat[2][2]);
-    printf("----------------------------------\n");
-
+    
     
 }
