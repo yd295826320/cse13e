@@ -1,3 +1,9 @@
+/* 
+ * File:   rpn.c
+ * Author: Duo Yu
+ *
+ * Created on April 29, 2021, 2:26 PM
+ */
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -5,7 +11,7 @@
 #include "rpn.h"
 #include "stack.h"
 
-
+int isnumber(char * token);
 /* RPN_Evaluate() parses and evaluates a string that contains 
  * a valid Reverse Polish Notation string (no newlines!)  
  * @param:  rpn_string - a string in polish notation.  Tokens must be either 
@@ -24,155 +30,111 @@
  * decimal floats.  RPN_Evaluate should be able to handle strings of 
  * at least 255 length.
  * */
-int RPN_Evaluate(char * rpn_string, double * result){
+int RPN_Evaluate(char * rpn_string, double * result) {
     char *token;
     double num;
     double num1;
     double num2;
-    struct Stack stack;
+    double num3;
+    struct Stack stack = {};
     int check1, check2, check3;
+    StackInit(&stack);
     token = strtok(rpn_string, " ");
-    while (token != NULL){
-        if (((token[0] == '+') || (token[0] == '-') || (token[0] == '/') || (token[0] == '*')) && (strlen(token) == 1)){
+    while (token != NULL) {
+        if (isnumber(token) == FALSE) {
+            if (strlen(token) != 1) {
+                return RPN_ERROR_INVALID_TOKEN;
+            }
             check1 = StackPop(&stack, &num2);
             check2 = StackPop(&stack, &num1);
-            
-            if (check1 == STANDARD_ERROR || check2 == STANDARD_ERROR){
+
+            if (check1 == STANDARD_ERROR || check2 == STANDARD_ERROR) {
                 return RPN_ERROR_STACK_UNDERFLOW;
             }
-            else{
-                if (strcmp(token, "+") == 0){
-                    num = num1 + num2;
-                    StackPush(&stack, num);                                     //error
-                }
-                if (strcmp(token, "-") == 0){
-                    num = num1 - num2;
+            else if (*token == '+') {
+                num = num1 + num2;
+                StackPush(&stack, num);
+                break;
+            }
+            else if (*token == '-') {
+                num = num1 - num2;
+                StackPush(&stack, num);
+                break;
+            }
+            else if (*token == '*') {
+                num = num1 * num2;
+                StackPush(&stack, num);
+                break;
+            }
+            else if (*token == '/') {
+                if (num2 == 0) {
+                    return RPN_ERROR_DIVIDE_BY_ZERO;
+                } else {
+                    num = num1 / num2;
                     StackPush(&stack, num);
-                }
-                if (strcmp(token, "*") == 0){
-                    num = num1 * num2;
-                    StackPush(&stack, num);
-                }
-                if (strcmp(token, "/") == 0){
-                    if (num2 == 0){
-                        return RPN_ERROR_DIVIDE_BY_ZERO;
-                    }
-                    else{
-                        num = num1 / num2;
-                    StackPush(&stack, num);
-                    }
+                    break;
                 }
             }
-        }
-        else if (isnumber(&token) == TRUE){
-            check3 = StackPush(&stack, atof(token));
-            if (check3 == STANDARD_ERROR){
-                return RPN_ERROR_STACK_OVERFLOW;
+            else {
+                return RPN_ERROR_INVALID_TOKEN;
             }
         }
-        else{
-            return RPN_ERROR_INVALID_TOKEN;
-        }
-        token = strtok(NULL, " ");
-    }
-    // stack->currentItemIndex = *stack.currentItemIndex
-    if (StackIsEmpty(&stack) == TRUE){
-        return RPN_ERROR_TOO_FEW_ITEMS_REMAIN;
-    }
-    else if (stack.currentItemIndex > 1){                                     //error
-        return RPN_ERROR_TOO_MANY_ITEMS_REMAIN;
-    }
+    
     else{
-        StackPop(&stack, &num);                                                 //error
-        *result = num;
-        return RPN_NO_ERROR;
-        
+        num3 = atof(token);  
+        check3 = StackPush(&stack, num3);
+        if (check3 == STANDARD_ERROR) {
+            return RPN_ERROR_STACK_OVERFLOW;
+        }
     }
+
+    token = strtok(NULL, " ");
+}
+// stack->currentItemIndex = *stack.currentItemIndex
+if (StackGetSize(&stack) < 1) {
+    return RPN_ERROR_TOO_FEW_ITEMS_REMAIN;
+} else if (StackGetSize(&stack) > 1) { //error
+    return RPN_ERROR_TOO_MANY_ITEMS_REMAIN;
+} 
+
+    *result = num;
+    StackPop(&stack, &num);
+    num = 0;
+    return RPN_NO_ERROR;
+
+
 }
 //== is for conditionals (such as in if statements)
 //= is for assigning values
-int isnumber(char *token){
-    if ((token[0] == ' ') && (token[1] == '\0')){                                     //error
+
+int isnumber(char * token) {
+    if ((token[0] == ' ') && (token[1] == '\0')) { //error
         return FALSE;
     }
-    if (token[0] == '-'){
-        token++;
-    }
-    char *index = token;
-    int x = -1;
-    // \0
-    for(;*index != '\0'; index++){
-        if (*index == '0'){
-            break;
-        }
-        else if (*index == '1'){
-            break;
-        }
-        else if (*index == '2'){
-            break;
-        }
-        else if (*index == '3'){
-            break;
-        }
-        else if (*index == '4'){
-            break;
-        }
-        else if (*index == '5'){
-            break;
-        }
-        else if (*index == '6'){
-            break;
-        }
-        else if (*index == '7'){
-            break;
-        }
-        else if (*index == '8'){
-            break;
-        }
-        else if (*index == '9'){
-            break;
-        }
-        else if (*index == '.'){
-            x++;
-                if (x > 0){
-                    return FALSE;
-                }
-            break;
-        }
-        else{
+    int index, period = 0, number = 0;
+    char negative = 0x2D;
+    char decmial = 0x2E;
+    char firstint = 0x30;
+    char lastint = 0x39;
+    for (index = 0; index < strlen(token); index++) {
+        if ((token[index] >= firstint && token[index] <= lastint)) {
+            number++;
+        } else {
+            if (token[index] == negative && (index == 0)) {
+                continue;
+            }
+            if (token[index] == decmial && (period == 0)) {
+                period++;
+                continue;
+            }
             return FALSE;
         }
-        /*switch(*index){
-            case '0':
-                break;
-            case '1':
-                break;
-            case '2':
-                break;
-            case '3':
-                break;
-            case '4':
-                break;
-            case '5':
-                break;
-            case '6':
-                break;
-            case '7':
-                break;
-            case '8':
-                break;
-            case '9':
-                break;
-            case '.':
-                x++;
-                if (x > 0){
-                    return FALSE;
-                }
-            default:
-                return FALSE;
-        }*/
     }
-    return TRUE;
+    if ((number >= 1) && (period <= 1)) {
+        return TRUE;
+    } else {
+        return FALSE;
+    }
 }
 
 /**else if(sscanf(token, "%f", &f) != 0){
@@ -190,6 +152,6 @@ int isnumber(char *token){
  * strings with more backspaces than characters. It should be able to handle strings of at least 255 length.
  * 
  * */
-int ProcessBackspaces(char *rpn_sentence){
+int ProcessBackspaces(char *rpn_sentence) {
     return 0;
 }

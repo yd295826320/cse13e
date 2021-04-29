@@ -52,7 +52,7 @@ int StackPush(struct Stack *stack, double value) {
     if (stack ->currentItemIndex == STACK_SIZE - 1) {
         return STANDARD_ERROR;
     } else {
-        stack ->currentItemIndex += 1;
+        stack ->currentItemIndex++;
         stack ->stackItems[stack ->currentItemIndex] = value;
         return SUCCESS;
     }
@@ -76,10 +76,10 @@ int StackPop(struct Stack *stack, double *value) {
     if (stack ->initialized == FALSE) {
         return STANDARD_ERROR;
     }
-    if (stack ->currentItemIndex == -1) {
+    if (stack ->currentItemIndex < 0) {
         return STANDARD_ERROR;
     } else {
-        stack ->currentItemIndex -= 1;
+        stack ->currentItemIndex --;
         *value = stack ->stackItems[stack ->currentItemIndex];
         return SUCCESS;
     }

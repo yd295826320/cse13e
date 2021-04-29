@@ -34,9 +34,6 @@ int main() {
         strtok(rpn_sentence, "\n");
         int error = RPN_Evaluate(rpn_sentence, &result);
         switch(error){
-            case '0':
-                printf("result = %f\n", result);
-                break;
             case '1':
                 printf("RPN_ERROR_STACK_OVERFLOW.\n");
                 break;
@@ -56,8 +53,8 @@ int main() {
                 printf("RPN_ERROR_TOO_MANY_ITEMS_REMAIN.\n");
                 break;
             default:
-                printf("Unknown problem caused\n");
-                break;     
+                printf("result = %f\n", result);
+                break;   
         }
         
         

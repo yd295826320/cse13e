@@ -23,7 +23,7 @@ int main()
     
     char test0[] = "1 1 + ";
     double result0;
-    double expected0 = 4;
+    double expected0 = 2;
     printf("Testing RPN_Evaluate with \"%s\"... \n ", test0);
     error = RPN_Evaluate(test0, &result0);
     if (error) {
@@ -34,9 +34,9 @@ int main()
         printf("   Success!\n");
     }
     
-    char test0_1[] = "0.5 1 + 2 *";
+    char test0_1[] = "2 2 *";
     double result0_1;
-    double expected0_1 = 3;
+    double expected0_1 = 4;
     printf("Testing RPN_Evaluate with \"%s\"... \n ", test0_1);
     error = RPN_Evaluate(test0_1, &result0_1);
     if (error) {
