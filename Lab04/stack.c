@@ -1,3 +1,9 @@
+/* 
+ * File:   stack.c
+ * Author: Duo Yu
+ *
+ * Created on April 29, 2021, 2:26 PM
+ */
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
