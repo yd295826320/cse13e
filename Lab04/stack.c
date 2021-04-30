@@ -1,3 +1,12 @@
+<<<<<<< HEAD
+=======
+/* 
+ * File:   stack.c
+ * Author: Duo Yu
+ *
+ * Created on April 29, 2021, 2:26 PM
+ */
+>>>>>>> 5859cb1b7a850accadf8d91c8980e6c9c6c3b739
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
