@@ -18,8 +18,16 @@
  * @return A pointer to the malloc()'d ListItem. May be NULL if an error occured.
  */
 ListItem *LinkedListNew(char *data){
-    char newL = malloc( sizeof(ListItem) );
-    return newL;
+    ListItem *newL = malloc(sizeof(ListItem));
+    if (newL != NULL){
+        newL ->previousItem = 0;
+        newL ->nextItem = 0;
+        newL ->data = data;
+        return newL;
+    }
+    else{
+        return NULL;
+    }
 }
 
 /**
@@ -33,7 +41,27 @@ ListItem *LinkedListNew(char *data){
  * @param data The data the new ListItem will point to.
  * @return A pointer to the newly-malloc()'d ListItem.
  */
-ListItem *LinkedListCreateAfter(ListItem *item, char *data);
+ListItem *LinkedListCreateAfter(ListItem *item, char *data){
+    if (item == NULL){
+        return NULL;
+    }
+    ListItem *newL = malloc(sizeof(ListItem));
+    if (newL != NULL){
+        if (item ->nextItem == NULL){
+            item ->nextItem = newL;
+            newL ->previousItem = item;
+        }
+        else if (item ->nextItem != NULL && item != NULL){
+            newL ->nextItem = item ->nextItem;
+            newL ->previousItem = item;
+            item ->nextItem ->previousItem = newL;
+            item ->nextItem = newL;
+        }
+    }
+    else{
+        return NULL;
+    }
+}
 
 
 /**
@@ -45,7 +73,29 @@ ListItem *LinkedListCreateAfter(ListItem *item, char *data);
  * @param item The ListItem to remove from the list.
  * @return The data pointer from the removed item. May be NULL.
  */
-char *LinkedListRemove(ListItem *item);
+char *LinkedListRemove(ListItem *item){
+    char *c = item ->data;
+    if (item == NULL){
+        return NULL;
+    }
+    if (item ->previousItem == NULL){
+        item ->nextItem ->previousItem = item ->previousItem;
+       
+    }
+    else if (item ->nextItem == NULL){
+        item ->previousItem ->nextItem = item ->nextItem;
+    }
+    else if (item ->nextItem != NULL && item != NULL){
+        item ->previousItem ->nextItem = item ->nextItem;
+        item ->nextItem ->previousItem = item ->previousItem;
+        item ->previousItem = 0;
+        item ->nextItem = 0;
+        
+    }
+    
+    free(item);
+    return c;
+}
 
 /**
  * This function returns the total size of the linked list. This means that even if it is passed a
@@ -55,7 +105,15 @@ char *LinkedListRemove(ListItem *item);
  * @param list An item in the list to be sized.
  * @return The number of ListItems in the list (0 if `list` was NULL).
  */
-int LinkedListSize(ListItem *list);
+int LinkedListSize(ListItem *list){
+    LinkedListGetFirst(list);
+    int index = 0;
+    for (;list ->nextItem != NULL;){
+        list = list ->nextItem;
+        index++;
+    }
+    return index;
+}
 
 /**
  * This function returns the head of a list given some element in the list. If it is passed NULL,
@@ -65,7 +123,15 @@ int LinkedListSize(ListItem *list);
  * @param list An element in a list.
  * @return A pointer to the first element in the list. Or NULL if provided an invalid list.
  */
-ListItem *LinkedListGetFirst(ListItem *list);
+ListItem *LinkedListGetFirst(ListItem *list){
+    if (list == NULL){
+        return NULL;
+    }
+    while (list ->previousItem != NULL){
+        list = list ->previousItem;
+    }
+    return list;
+}
 
 /**
  * This function operates identically to LinkedListGetFirst(), but returns
@@ -74,7 +140,15 @@ ListItem *LinkedListGetFirst(ListItem *list);
  * @param list An element in a list.
  * @return A pointer to the last element in the list. Or NULL if provided an invalid list.
  */
-ListItem *LinkedListGetLast(ListItem *list);
+ListItem *LinkedListGetLast(ListItem *list){
+    if (list == NULL){
+        return NULL;
+    }
+    while (list ->nextItem != NULL){
+        list = list ->nextItem;
+    }
+    return list;
+}
 
 
 /**
@@ -88,7 +162,18 @@ ListItem *LinkedListGetLast(ListItem *list);
  * @param secondItem Another item whose data will be swapped.
  * @return SUCCESS if the swap worked or STANDARD_ERROR if it failed.
  */
-int LinkedListSwapData(ListItem *firstItem, ListItem *secondItem);
+int LinkedListSwapData(ListItem *firstItem, ListItem *secondItem){
+    if (firstItem == NULL || secondItem == NULL){
+        return STANDARD_ERROR;
+    }
+    else{
+        char *x = firstItem -> data;
+        char *y = secondItem -> data;
+        firstItem -> data = y;
+        secondItem -> data = x;
+        return SUCCESS;
+    }
+}
 
 /**
  * LinkedListPrint() prints out the complete list to stdout. This function prints out the given
@@ -99,4 +184,18 @@ int LinkedListSwapData(ListItem *firstItem, ListItem *secondItem);
  * @param list Any element in the list to print.
  * @return SUCCESS or STANDARD_ERROR if passed NULL pointers.
  */
-int LinkedListPrint(ListItem *list);
+int LinkedListPrint(ListItem *list){
+    if (list == NULL){
+        return STANDARD_ERROR;
+    }
+    else{
+        LinkedListGetFirst(list);
+        printf("%s",list ->data);
+        for (;list ->nextItem != NULL;){
+            printf(", ");
+            list = list ->nextItem;
+            printf("%s",list ->data);
+        } 
+       return SUCCESS;
+    }
+}

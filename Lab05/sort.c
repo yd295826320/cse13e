@@ -63,6 +63,22 @@ int main(void)
 ListItem *SelectionSort(ListItem* list)
 {
    //YOUR CODE GOES HERE!
+    if (!list){
+        return NULL;
+    }
+    ListItem *x;
+    ListItem *y;
+    int compare;
+    for (x = LinkedListGetFirst(list); x -> nextItem != NULL; x = list ->nextItem){
+        for(y = x -> nextItem; y != NULL; y = y -> nextItem){
+            compare = strcmp(x.data,y.data);
+            if (compare > 0){
+                LinkedListSwapData(x,y);
+            }
+        }
+    }
+    
+    return list;
 }
 
 /**
@@ -80,6 +96,7 @@ ListItem *SelectionSort(ListItem* list)
 ListItem *InsertionSort(ListItem* list)
 {
    //YOUR CODE GOES HERE!
+    strcmp(); 
 }
 
 /* CreateUnsortedList() uses the functions in the LinkedList library to
