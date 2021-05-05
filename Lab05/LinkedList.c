@@ -42,25 +42,23 @@ ListItem *LinkedListNew(char *data){
  * @return A pointer to the newly-malloc()'d ListItem.
  */
 ListItem *LinkedListCreateAfter(ListItem *item, char *data){
-    if (item == NULL){
-        return NULL;
-    }
+    
     ListItem *newL = malloc(sizeof(ListItem));
-    if (newL != NULL){
-        if (item ->nextItem == NULL){
-            item ->nextItem = newL;
-            newL ->previousItem = item;
-        }
-        else if (item ->nextItem != NULL && item != NULL){
-            newL ->nextItem = item ->nextItem;
-            newL ->previousItem = item;
-            item ->nextItem ->previousItem = newL;
-            item ->nextItem = newL;
-        }
-    }
-    else{
+    if (newL == NULL){
         return NULL;
     }
+    newL ->previousItem = item;
+    newL ->data = data;
+    newL ->nextItem = NULL;
+    if (item != NULL){
+        if (item ->nextItem != NULL){
+            newL ->nextItem = item ->nextItem;
+            newL ->nextItem ->previousItem = newL;
+        }
+        item ->nextItem = newL;
+    }
+   
+    return newL;
 }
 
 
@@ -92,7 +90,7 @@ char *LinkedListRemove(ListItem *item){
         item ->nextItem = 0;
         
     }
-    
+    char *data = item ->data;
     free(item);
     return c;
 }
@@ -106,13 +104,14 @@ char *LinkedListRemove(ListItem *item){
  * @return The number of ListItems in the list (0 if `list` was NULL).
  */
 int LinkedListSize(ListItem *list){
-    LinkedListGetFirst(list);
+    ListItem *first;
+    first = LinkedListGetFirst(list);
     int index = 0;
-    for (;list ->nextItem != NULL;){
-        list = list ->nextItem;
+    for (;first ->nextItem != NULL;){
+        first = first ->nextItem;
         index++;
     }
-    return index;
+    return (index + 1);
 }
 
 /**

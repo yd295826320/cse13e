@@ -63,21 +63,18 @@ int main(void)
 ListItem *SelectionSort(ListItem* list)
 {
    //YOUR CODE GOES HERE!
-    if (!list){
+    if (list == NULL){
         return NULL;
     }
     ListItem *x;
     ListItem *y;
-    int compare;
-    for (x = LinkedListGetFirst(list); x -> nextItem != NULL; x = list ->nextItem){
-        for(y = x -> nextItem; y != NULL; y = y -> nextItem){
-            compare = strcmp(x.data,y.data);
-            if (compare > 0){
+    for (x = LinkedListGetFirst(list); x -> nextItem != NULL; x = x ->nextItem){
+        for(y = x -> nextItem; y ->nextItem != NULL; y = y -> nextItem){
+            if (strcmp(x ->data,y ->data) > 0){
                 LinkedListSwapData(x,y);
             }
         }
     }
-    
     return list;
 }
 
@@ -96,7 +93,32 @@ ListItem *SelectionSort(ListItem* list)
 ListItem *InsertionSort(ListItem* list)
 {
    //YOUR CODE GOES HERE!
-    strcmp(); 
+    char *remove;
+    if (!list){
+        return NULL;
+    }
+    ListItem *sort = LinkedListGetLast(list);
+    while (sort ->previousItem != NULL){
+        ListItem *next = sort ->previousItem;
+        if (strcmp(next ->data, sort ->data) < 0 ){
+            sort ->data = next ->data;
+        }
+        else{
+            ListItem *insert = sort;
+            while (insert ->nextItem != NULL){
+               if (strcmp(insert ->nextItem->data,next->data) > 0){
+                   break;
+               } 
+               else{
+                    insert = insert ->nextItem;
+               }
+            }
+            remove = LinkedListRemove(next);
+            LinkedListCreateAfter(insert, remove);
+            
+        }
+    }
+    return LinkedListGetFirst(list); 
 }
 
 /* CreateUnsortedList() uses the functions in the LinkedList library to
