@@ -59,6 +59,7 @@ int main(void)
  * is a valid, non-NULL pointer to a linked list.
  * 
  * This function does not print.
+ * 
  */
 ListItem *SelectionSort(ListItem* list)
 {
@@ -66,16 +67,18 @@ ListItem *SelectionSort(ListItem* list)
     if (list == NULL){
         return NULL;
     }
-    ListItem *x;
-    ListItem *y;
-    for (x = LinkedListGetFirst(list); x -> nextItem != NULL; x = x ->nextItem){
-        for(y = x -> nextItem; y ->nextItem != NULL; y = y -> nextItem){
-            if (strcmp(x ->data,y ->data) > 0){
-                LinkedListSwapData(x,y);
+    ListItem * sort =LinkedListGetFirst(list);
+    while (sort ->nextItem){
+        ListItem * next = sort ->nextItem;
+        while(next){
+            if(strcmp(sort ->data, next ->data) > 0){
+                LinkedListSwapData(sort, next);
             }
+            next = next ->nextItem;
         }
+        sort = sort ->nextItem;
     }
-    return list;
+    return LinkedListGetFirst(list);
 }
 
 /**
@@ -93,19 +96,19 @@ ListItem *SelectionSort(ListItem* list)
 ListItem *InsertionSort(ListItem* list)
 {
    //YOUR CODE GOES HERE!
-    char *remove;
-    if (!list){
+    
+    if (list == NULL){
         return NULL;
     }
     ListItem *sort = LinkedListGetLast(list);
-    while (sort ->previousItem != NULL){
+    while (sort ->previousItem){
         ListItem *next = sort ->previousItem;
         if (strcmp(next ->data, sort ->data) < 0 ){
-            sort ->data = next ->data;
+            sort = next;
         }
         else{
             ListItem *insert = sort;
-            while (insert ->nextItem != NULL){
+            while (insert ->nextItem){
                if (strcmp(insert ->nextItem->data,next->data) > 0){
                    break;
                } 
@@ -113,7 +116,7 @@ ListItem *InsertionSort(ListItem* list)
                     insert = insert ->nextItem;
                }
             }
-            remove = LinkedListRemove(next);
+            char *remove = LinkedListRemove(next);
             LinkedListCreateAfter(insert, remove);
             
         }

@@ -74,14 +74,17 @@ ListItem *LinkedListCreateAfter(ListItem *item, char *data){
 char *LinkedListRemove(ListItem *item){
     char *c = item ->data;
     if (item == NULL){
-        return NULL;
+        c = NULL;
+        return c;
     }
-    if (item ->previousItem == NULL){
-        item ->nextItem ->previousItem = item ->previousItem;
+    
+    if (item ->previousItem == NULL && item ->nextItem){
+        item ->nextItem ->previousItem = NULL;
+        free(item);
        
     }
     else if (item ->nextItem == NULL){
-        item ->previousItem ->nextItem = item ->nextItem;
+        item ->previousItem ->nextItem = NULL;
     }
     else if (item ->nextItem != NULL && item != NULL){
         item ->previousItem ->nextItem = item ->nextItem;
@@ -90,7 +93,6 @@ char *LinkedListRemove(ListItem *item){
         item ->nextItem = 0;
         
     }
-    char *data = item ->data;
     free(item);
     return c;
 }
