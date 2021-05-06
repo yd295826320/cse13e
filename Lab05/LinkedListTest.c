@@ -16,14 +16,10 @@ int main(void)
     int success_LinkedListGetLast = 0;
     
     
-    ListItem *item = LinkedListNew("Head");
-    //printf("%s", item->data);
-    //printf("\n");
-    //check linked list create after
-    //verify that nodes are in correct order
+    ListItem *item = LinkedListNew("Head");                                     //create the first item Head
     LinkedListPrint(item);
     printf("\n");
-    if (item ->nextItem == NULL){
+    if (item ->nextItem == NULL){                                               // testing if it create correctly
         success_LinkedListNew ++;
     }
     if (item ->previousItem == NULL){
@@ -33,28 +29,26 @@ int main(void)
         success_LinkedListNew ++;
     }
     
-    ListItem *item1;
-    item1 = LinkedListCreateAfter(item, "Tail");
-    if (strcmp(item1->data, "Tail") == 0){
+    ListItem *item1;                                                            
+    item1 = LinkedListCreateAfter(item, "Tail");                                // create the second item
+    if (strcmp(item1->data, "Tail") == 0){                                      // test if it created Tail
         success_LinkedListCreateAfter++;
     }
     item1 = LinkedListCreateAfter(item, "Middle");
     
     LinkedListPrint(item);
      printf("\n");
-    if (strcmp(item1->data, "Middle") == 0){
+    if (strcmp(item1->data, "Middle") == 0){                                    // testing if the pointer moved to the new item create
         success_LinkedListCreateAfter++;
     }
-    int index = LinkedListSize(item);
+    int index = LinkedListSize(item);                                           //testing how many item are there, which is should be three
     if (index == 3){
         success_LinkedListSize++;
     }
     
     LinkedListCreateAfter(item, "Apple");
-    if (strcmp(item->data, "Apple") == 0){
-        success_LinkedListCreateAfter++;
-    }
-    index = LinkedListSize(item);
+    
+    index = LinkedListSize(item);                                               //after create another item, the size should be four
     if (index == 4){
         success_LinkedListSize++;
     }
@@ -64,31 +58,31 @@ int main(void)
     LinkedListPrint(item);
     printf("\n");
     printf("\n");
-    printf("Testing swap data for Middle and Banana:\n");
+    printf("Testing swap data for Middle and Banana:\n");                       //swap the Banana and Middle
     LinkedListSwapData(item1, item2);
     LinkedListPrint(item);
     printf("\n");
     printf("\n");
-    printf("Testing remove data for Middle:\n");
+    printf("Testing remove data for Middle:\n");                                //removing the Middle from the list
     LinkedListRemove(item2);
     LinkedListPrint(item);
     printf("\n");
     ListItem *item3;
     ListItem *item4;
     item3 = LinkedListGetFirst(item);
-    if (strcmp(item3->data, "Head") == 0){
+    if (strcmp(item3->data, "Head") == 0){                                      //testing linklist first, at this time shouldbe head
         success_LinkedListGetFirst++;
     }
     item4 = LinkedListGetLast(item);
-    if (strcmp(item4->data, "Tail") == 0){
+    if (strcmp(item4->data, "Tail") == 0){                                      //testing linklist last, at this time shouldbe tail
         success_LinkedListGetLast++;
     }
     printf("\n");
-    printf("Testing swap data for Head and Tail:\n");
+    printf("Testing swap data for Head and Tail:\n");                           //swap the Head and Tail
     LinkedListSwapData(item3, item4);
     LinkedListPrint(item);
     printf("\n");
-    if (strcmp(item3->data, "Tail") == 0){
+    if (strcmp(item3->data, "Tail") == 0){                                      //testing linklist get first and last, now the head and tail should swaped
         success_LinkedListGetFirst++;
     }
     item4 = LinkedListGetLast(item);
@@ -96,7 +90,7 @@ int main(void)
         success_LinkedListGetLast++;
     }
     printf("\n");
-    printf("Testing remove data for Head:\n");
+    printf("Testing remove data for Head:\n");                                  //testing remove, removing Head
     LinkedListRemove(item4);
     LinkedListPrint(item);
     printf("\n");

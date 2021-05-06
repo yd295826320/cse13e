@@ -18,11 +18,11 @@
  * @return A pointer to the malloc()'d ListItem. May be NULL if an error occured.
  */
 ListItem *LinkedListNew(char *data){
-    ListItem *newL = malloc(sizeof(ListItem));
+    ListItem *newL = malloc(sizeof(ListItem));                                  //creating a new List
     if (newL == NULL){
         return newL;
     }
-    newL ->previousItem = 0;
+    newL ->previousItem = 0;                                                    //make sure there is no previous and next item
     newL ->nextItem = 0;
     newL ->data = data;
     return newL;
@@ -45,19 +45,19 @@ ListItem *LinkedListCreateAfter(ListItem *item, char *data){
     if (newL == NULL){
         return newL;
     }
-    if (item != NULL){
-        if (item ->nextItem != NULL){
+    if (item != NULL){                                                          //when item is not NULL
+        if (item ->nextItem != NULL){                                           //when it is not the end of list
             item ->nextItem ->previousItem = newL;
             newL ->nextItem = item ->nextItem;
         }
-        else{
+        else{                                                                   //if it is the head or the middle of the list
             newL ->nextItem = NULL;
         }
         item ->nextItem = newL;
         newL ->previousItem = item;
         newL ->data = data;
     }
-    else{
+    else{                                                                       //if it is NULL
         newL ->previousItem = NULL;
         newL ->data = data;
         newL ->nextItem = NULL;
@@ -83,22 +83,22 @@ char *LinkedListRemove(ListItem *item){
         return c;
     }
     
-    if (item ->previousItem == NULL && item ->nextItem){
+    if (item ->previousItem == NULL && item ->nextItem){                        //when item is the head of the list
         item ->nextItem ->previousItem = NULL;
         free(item);
        
     }
-    else if (item ->nextItem == NULL){
+    else if (item ->nextItem == NULL){                                          //when item is the tail of the list
         item ->previousItem ->nextItem = NULL;
     }
-    else if (item ->nextItem != NULL && item != NULL){
+    else if (item ->nextItem != NULL && item != NULL){                          //when item is in the middle of the list
         item ->previousItem ->nextItem = item ->nextItem;
         item ->nextItem ->previousItem = item ->previousItem;
         item ->previousItem = 0;
         item ->nextItem = 0;
         
     }
-    free(item);
+    free(item);                                                                 //free the item
     return c;
 }
 
@@ -114,11 +114,11 @@ int LinkedListSize(ListItem *list){
     ListItem *first;
     first = LinkedListGetFirst(list);
     int index = 0;
-    for (;first ->nextItem != NULL;){
+    for (;first ->nextItem != NULL;){                                           //start from the head if it not the end of the list, index + 1
         first = first ->nextItem;
         index++;
     }
-    return (index + 1);
+    return (index + 1);                                                         //counting for the last item
 }
 
 /**

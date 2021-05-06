@@ -67,11 +67,11 @@ ListItem *SelectionSort(ListItem* list)
     if (list == NULL){
         return NULL;
     }
-    ListItem * sort =LinkedListGetFirst(list);
+    ListItem * sort =LinkedListGetFirst(list);                                  //starting from the beginning
     while (sort ->nextItem){
         ListItem * next = sort ->nextItem;
         while(next){
-            if(strcmp(sort ->data, next ->data) > 0){
+            if(strcmp(sort ->data, next ->data) > 0){                           //if next item is bigger than swap the items
                 LinkedListSwapData(sort, next);
             }
             next = next ->nextItem;
@@ -100,23 +100,23 @@ ListItem *InsertionSort(ListItem* list)
     if (list == NULL){
         return NULL;
     }
-    ListItem *sort = LinkedListGetLast(list);
-    while (sort ->previousItem){
+    ListItem *sort = LinkedListGetLast(list);                                   //start from the end of the list
+    while (sort ->previousItem){                                                //while sort is not the first item
         ListItem *next = sort ->previousItem;
-        if (strcmp(next ->data, sort ->data) < 0 ){
+        if (strcmp(next ->data, sort ->data) < 0 ){                             //if sort item is smaller than sort item equals to next item
             sort = next;
         }
         else{
             ListItem *insert = sort;
-            while (insert ->nextItem){
-               if (strcmp(insert ->nextItem->data,next->data) > 0){
+            while (insert ->nextItem){                                          //while insert in the list
+               if (strcmp(insert ->nextItem->data,next->data) > 0){             //find out the first item that is smaller
                    break;
                } 
                else{
                     insert = insert ->nextItem;
                }
             }
-            char *remove = LinkedListRemove(next);
+            char *remove = LinkedListRemove(next);                              //remove the next item and insert the item
             LinkedListCreateAfter(insert, remove);
             
         }
