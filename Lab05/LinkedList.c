@@ -19,15 +19,13 @@
  */
 ListItem *LinkedListNew(char *data){
     ListItem *newL = malloc(sizeof(ListItem));
-    if (newL != NULL){
-        newL ->previousItem = 0;
-        newL ->nextItem = 0;
-        newL ->data = data;
+    if (newL == NULL){
         return newL;
     }
-    else{
-        return NULL;
-    }
+    newL ->previousItem = 0;
+    newL ->nextItem = 0;
+    newL ->data = data;
+    return newL;
 }
 
 /**
@@ -45,17 +43,24 @@ ListItem *LinkedListCreateAfter(ListItem *item, char *data){
     
     ListItem *newL = malloc(sizeof(ListItem));
     if (newL == NULL){
-        return NULL;
+        return newL;
     }
-    newL ->previousItem = item;
-    newL ->data = data;
-    newL ->nextItem = NULL;
     if (item != NULL){
         if (item ->nextItem != NULL){
+            item ->nextItem ->previousItem = newL;
             newL ->nextItem = item ->nextItem;
-            newL ->nextItem ->previousItem = newL;
+        }
+        else{
+            newL ->nextItem = NULL;
         }
         item ->nextItem = newL;
+        newL ->previousItem = item;
+        newL ->data = data;
+    }
+    else{
+        newL ->previousItem = NULL;
+        newL ->data = data;
+        newL ->nextItem = NULL;
     }
    
     return newL;
