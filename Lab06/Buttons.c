@@ -30,7 +30,7 @@ void ButtonsInit(void){
 #define MASK_BUTTON_3_DOWN 0x4444
 #define MASK_BUTTON_4_DOWN 0x8888
 
-static int Button1_prev;
+//static int Button1_prev;
 
 /**
  * ButtonsCheckEvents function checks the current button states and returns
@@ -74,20 +74,20 @@ uint8_t ButtonsCheckEvents(void){
         prevButtonevent |= BUTTON_EVENT_1UP;
     }
     
-    if ((prev_var & MASK_BUTTON_2_DOWN) && !(prevButtonevent & MASK_BUTTON_2_DOWN)){
+    if ((prev_var & MASK_BUTTON_2_DOWN) && !(prevButtonevent & BUTTON_EVENT_2DOWN)){
         returnButtonevent |= BUTTON_EVENT_2DOWN;
         prevButtonevent |= BUTTON_EVENT_2DOWN;
     }
-    if (!(prev_var & MASK_BUTTON_2_DOWN) && (prevButtonevent & MASK_BUTTON_2_DOWN)){
+    if (!(prev_var & MASK_BUTTON_2_DOWN) && (prevButtonevent & BUTTON_EVENT_2DOWN)){
         returnButtonevent |= BUTTON_EVENT_2UP;
         prevButtonevent |= BUTTON_EVENT_2UP;
     }
     
-    if ((prev_var & MASK_BUTTON_3_DOWN) && !(prevButtonevent & BUTTON_EVENT_2DOWN)){
+    if ((prev_var & MASK_BUTTON_3_DOWN) && !(prevButtonevent & BUTTON_EVENT_3DOWN)){
         returnButtonevent |= BUTTON_EVENT_3DOWN;
         prevButtonevent |= BUTTON_EVENT_3DOWN;
     }
-    if (!(prev_var & MASK_BUTTON_3_DOWN) && (prevButtonevent & BUTTON_EVENT_2DOWN)){
+    if (!(prev_var & MASK_BUTTON_3_DOWN) && (prevButtonevent & BUTTON_EVENT_3DOWN)){
         returnButtonevent |= BUTTON_EVENT_3UP;
         prevButtonevent |= BUTTON_EVENT_3UP;
     }
