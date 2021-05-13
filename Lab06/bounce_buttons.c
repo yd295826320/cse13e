@@ -4,7 +4,9 @@
 
 //CMPE13 Support Library
 #include "BOARD.h"
-
+#include "Buttons.h"
+#include "Oled.h"
+#include "Leds_Lab06.h"
 // Microchip libraries
 #include <xc.h>
 #include <sys/attribs.h>
@@ -22,7 +24,8 @@ static uint8_t bottomEvent = BUTTON_EVENT_NONE;
 int main(void)
 {
     BOARD_Init();
-
+    ButtonsInit();
+    LEDS_INIT();
     // Configure Timer 1 using PBCLK as input. This default period will make the LEDs blink at a
     // pretty reasonable rate to start.
     T1CON = 0; // everything should be off
@@ -39,7 +42,7 @@ int main(void)
     /***************************************************************************************************
      * Your code goes in between this comment and the following one with asterisks.
      **************************************************************************************************/
-    printf("Welcome to CRUZID's lab6 part5 (bounce_buttons).  Compiled on %s %s.\n", __TIME__, __DATE__);
+    printf("Welcome to dyu33's lab6 part5 (bounce_buttons).  Compiled on %s %s.\n", __TIME__, __DATE__);
     /*initialize buttons library
      * while true:
      *      if a button event flag is set:
@@ -50,11 +53,67 @@ int main(void)
         *          toggle appropriate LEDs for that button
      * repeat for other buttons 
      * clear button event flag */
-
+    uint8_t LED1 = 0x01;
+    uint8_t LED2 = 0x02;
+    uint8_t LED3 = 0x04;
+    uint8_t LED4 = 0x08;
+    uint8_t LED5 = 0x10;
+    uint8_t LED6 = 0x20;
+    uint8_t LED7 = 0x40;
+    uint8_t LED8 = 0x80;
     ButtonsInit();
     while (TRUE){
         if (bottomEvent != BUTTON_EVENT_NONE){
-            
+            uint8_t switchesState = SWITCH_STATES();
+            if ((switchesState & SWITCH_STATE_SW1) & BUTTON_EVENT_1UP){
+                LEDS_SET(LED1);
+                LEDS_SET(LED1 ^ BTN1);
+                LEDS_SET(LED2);
+                LEDS_SET(LED2 ^ BTN1);
+            }
+            else if (!(switchesState & SWITCH_STATE_SW1) & BUTTON_EVENT_1DOWN){
+                LEDS_SET(LED1);
+                LEDS_SET(LED1 ^ BTN1);
+                LEDS_SET(LED2);
+                LEDS_SET(LED2 ^ BTN1);
+            }
+            else if ((switchesState & SWITCH_STATE_SW2) & BUTTON_EVENT_2UP){
+                LEDS_SET(LED3);
+                LEDS_SET(LED3 ^ BTN2);
+                LEDS_SET(LED4);
+                LEDS_SET(LED4 ^ BTN2);
+            }
+            else if (!(switchesState & SWITCH_STATE_SW2) & BUTTON_EVENT_2DOWN){
+                LEDS_SET(LED3);
+                LEDS_SET(LED3 ^ BTN2);
+                LEDS_SET(LED4);
+                LEDS_SET(LED4 ^ BTN2);
+            }
+            else if ((switchesState & SWITCH_STATE_SW3) & BUTTON_EVENT_3UP){
+                LEDS_SET(LED5);
+                LEDS_SET(LED5 ^ BTN3);
+                LEDS_SET(LED6);
+                LEDS_SET(LED6 ^ BTN3);
+            }
+            else if (!(switchesState & SWITCH_STATE_SW3) & BUTTON_EVENT_3DOWN){
+                LEDS_SET(LED5);
+                LEDS_SET(LED5 ^ BTN3);
+                LEDS_SET(LED6);
+                LEDS_SET(LED6 ^ BTN3);
+            }
+            else if ((switchesState & SWITCH_STATE_SW4) & BUTTON_EVENT_4UP){
+                LEDS_SET(LED7);
+                LEDS_SET(LED8 ^ BTN4);
+                LEDS_SET(LED7);
+                LEDS_SET(LED8 ^ BTN4);
+            }
+            else if (!(switchesState & SWITCH_STATE_SW4) & BUTTON_EVENT_4DOWN){
+                LEDS_SET(LED7);
+                LEDS_SET(LED8 ^ BTN4);
+                LEDS_SET(LED7);
+                LEDS_SET(LED8 ^ BTN4);
+            }
+            bottomEvent = BUTTON_EVENT_NONE;
         }
     }
     
