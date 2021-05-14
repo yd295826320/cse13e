@@ -67,38 +67,38 @@ uint8_t ButtonsCheckEvents(void){
     
     if ((prev_var & MASK_BUTTON_1_DOWN) && !(prevButtonevent & BUTTON_EVENT_1DOWN)){
         returnButtonevent |= BUTTON_EVENT_1DOWN;
-        prevButtonevent |= BUTTON_EVENT_1DOWN;
+        prevButtonevent = BUTTON_EVENT_1DOWN;
     }
     if (!(prev_var & MASK_BUTTON_1_DOWN) && (prevButtonevent & BUTTON_EVENT_1DOWN)){
         returnButtonevent |= BUTTON_EVENT_1UP;
-        prevButtonevent |= BUTTON_EVENT_1UP;
+        prevButtonevent = BUTTON_EVENT_1UP;
     }
     
     if ((prev_var & MASK_BUTTON_2_DOWN) && !(prevButtonevent & BUTTON_EVENT_2DOWN)){
         returnButtonevent |= BUTTON_EVENT_2DOWN;
-        prevButtonevent |= BUTTON_EVENT_2DOWN;
+        prevButtonevent = BUTTON_EVENT_2DOWN;
     }
     if (!(prev_var & MASK_BUTTON_2_DOWN) && (prevButtonevent & BUTTON_EVENT_2DOWN)){
         returnButtonevent |= BUTTON_EVENT_2UP;
-        prevButtonevent |= BUTTON_EVENT_2UP;
+        prevButtonevent = BUTTON_EVENT_2UP;
     }
     
     if ((prev_var & MASK_BUTTON_3_DOWN) && !(prevButtonevent & BUTTON_EVENT_3DOWN)){
         returnButtonevent |= BUTTON_EVENT_3DOWN;
-        prevButtonevent |= BUTTON_EVENT_3DOWN;
+        prevButtonevent = BUTTON_EVENT_3DOWN;
     }
     if (!(prev_var & MASK_BUTTON_3_DOWN) && (prevButtonevent & BUTTON_EVENT_3DOWN)){
         returnButtonevent |= BUTTON_EVENT_3UP;
-        prevButtonevent |= BUTTON_EVENT_3UP;
+        prevButtonevent = BUTTON_EVENT_3UP;
     }
     
     if ((prev_var & MASK_BUTTON_4_DOWN) && !(prevButtonevent & BUTTON_EVENT_4DOWN)){
         returnButtonevent |= BUTTON_EVENT_4DOWN;
-        prevButtonevent |= BUTTON_EVENT_4DOWN;
+        prevButtonevent = BUTTON_EVENT_4DOWN;
     }
     if (!(prev_var & MASK_BUTTON_4_DOWN) && (prevButtonevent & BUTTON_EVENT_4DOWN)){
         returnButtonevent |= BUTTON_EVENT_4UP;
-        prevButtonevent |= BUTTON_EVENT_4UP;
+        prevButtonevent = BUTTON_EVENT_4UP;
     }
     
     
