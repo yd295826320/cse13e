@@ -65,7 +65,7 @@ uint8_t ButtonsCheckEvents(void){
     uint8_t returnButtonevent = BUTTON_EVENT_NONE;
     static uint8_t prevButtonevent = BUTTON_EVENT_NONE;
     
-    if ((prev_var & MASK_BUTTON_1_DOWN) && !(prevButtonevent & BUTTON_EVENT_1DOWN)){
+    if ((prev_var & MASK_BUTTON_1_DOWN) && !(prevButtonevent & BUTTON_EVENT_1DOWN)){ 
         returnButtonevent |= BUTTON_EVENT_1DOWN;
         prevButtonevent = BUTTON_EVENT_1DOWN;
     }

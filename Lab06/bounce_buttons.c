@@ -12,9 +12,13 @@
 #include <sys/attribs.h>
 
 // User libraries
-static uint8_t bottomEvent = BUTTON_EVENT_NONE;
-// **** Set macros and preprocessor directives ****
 
+// **** Set macros and preprocessor directives ****
+struct ButtonState{
+    uint8_t event; 
+    uint8_t states; 
+};
+struct ButtonState bottomEvent = {0x00,FALSE};
 // **** Declare any datatypes here ****
 
 // **** Define global, module-level, or external variables here ****
@@ -53,68 +57,55 @@ int main(void)
         *          toggle appropriate LEDs for that button
      * repeat for other buttons 
      * clear button event flag */
-    uint8_t LED1 = 0x01;
-    uint8_t LED2 = 0x02;
-    uint8_t LED3 = 0x04;
-    uint8_t LED4 = 0x08;
-    uint8_t LED5 = 0x10;
-    uint8_t LED6 = 0x20;
-    uint8_t LED7 = 0x40;
-    uint8_t LED8 = 0x80;
+    
+    
     ButtonsInit();
-    while (TRUE){
-        if (bottomEvent != BUTTON_EVENT_NONE){
-            uint8_t switchesState = SWITCH_STATES();
-            if ((switchesState & SWITCH_STATE_SW1) & BUTTON_EVENT_1UP){
-                LEDS_SET(LED1);
-                LEDS_SET(LED1 ^ BTN1);
-                LEDS_SET(LED2);
-                LEDS_SET(LED2 ^ BTN1);
+    while (1){
+        static uint8_t reset = 0x00;
+        uint8_t LED;
+        uint8_t switchesState = SWITCH_STATES();
+        if (bottomEvent.states){                                                //if bottom Event
+            
+            
+            if ((switchesState & SWITCH_STATE_SW1) && bottomEvent.event == BUTTON_EVENT_1UP){               //if switch is up then whenever I release the bottom it would lights up
+                LED = LEDS_GET();
+                LEDS_SET(LED ^ 0x03);
             }
-            else if (!(switchesState & SWITCH_STATE_SW1) & BUTTON_EVENT_1DOWN){
-                LEDS_SET(LED1);
-                LEDS_SET(LED1 ^ BTN1);
-                LEDS_SET(LED2);
-                LEDS_SET(LED2 ^ BTN1);
+            if (!(switchesState & SWITCH_STATE_SW1) && bottomEvent.event == BUTTON_EVENT_1DOWN){            //if switch is down then whenever I press the bottom it would lights up
+                LED = LEDS_GET();
+                LEDS_SET(LED ^ 0x03);
             }
-            else if ((switchesState & SWITCH_STATE_SW2) & BUTTON_EVENT_2UP){
-                LEDS_SET(LED3);
-                LEDS_SET(LED3 ^ BTN2);
-                LEDS_SET(LED4);
-                LEDS_SET(LED4 ^ BTN2);
+            
+            if ((switchesState & SWITCH_STATE_SW2) && bottomEvent.event == BUTTON_EVENT_2UP){
+                LED = LEDS_GET();
+                LEDS_SET(LED ^ 0x0C);
             }
-            else if (!(switchesState & SWITCH_STATE_SW2) & BUTTON_EVENT_2DOWN){
-                LEDS_SET(LED3);
-                LEDS_SET(LED3 ^ BTN2);
-                LEDS_SET(LED4);
-                LEDS_SET(LED4 ^ BTN2);
+            if (!(switchesState & SWITCH_STATE_SW2) && bottomEvent.event == BUTTON_EVENT_2DOWN){
+                LED = LEDS_GET();
+                LEDS_SET(LED ^ 0x0C);
             }
-            else if ((switchesState & SWITCH_STATE_SW3) & BUTTON_EVENT_3UP){
-                LEDS_SET(LED5);
-                LEDS_SET(LED5 ^ BTN3);
-                LEDS_SET(LED6);
-                LEDS_SET(LED6 ^ BTN3);
+            
+            if ((switchesState & SWITCH_STATE_SW3) && bottomEvent.event == BUTTON_EVENT_3UP){
+                LED = LEDS_GET();
+                LEDS_SET(LED ^ 0x30);
             }
-            else if (!(switchesState & SWITCH_STATE_SW3) & BUTTON_EVENT_3DOWN){
-                LEDS_SET(LED5);
-                LEDS_SET(LED5 ^ BTN3);
-                LEDS_SET(LED6);
-                LEDS_SET(LED6 ^ BTN3);
+            if (!(switchesState & SWITCH_STATE_SW3) && bottomEvent.event == BUTTON_EVENT_3DOWN){
+                LED = LEDS_GET();
+                LEDS_SET(LED ^ 0x30);
             }
-            else if ((switchesState & SWITCH_STATE_SW4) & BUTTON_EVENT_4UP){
-                LEDS_SET(LED7);
-                LEDS_SET(LED8 ^ BTN4);
-                LEDS_SET(LED7);
-                LEDS_SET(LED8 ^ BTN4);
+            
+            if ((switchesState & SWITCH_STATE_SW3) && bottomEvent.event == BUTTON_EVENT_4UP){
+                LED = LEDS_GET();
+                LEDS_SET(LED ^ 0xC0);
             }
-            else if (!(switchesState & SWITCH_STATE_SW4) & BUTTON_EVENT_4DOWN){
-                LEDS_SET(LED7);
-                LEDS_SET(LED8 ^ BTN4);
-                LEDS_SET(LED7);
-                LEDS_SET(LED8 ^ BTN4);
+            if (!(switchesState & SWITCH_STATE_SW3) && bottomEvent.event == BUTTON_EVENT_4DOWN){
+                LED = LEDS_GET();
+                LEDS_SET(LED ^ 0xC0);
             }
-            bottomEvent = BUTTON_EVENT_NONE;
+            bottomEvent.states=FALSE;
+            
         }
+       
     }
     
     /***************************************************************************************************
@@ -139,7 +130,11 @@ void __ISR(_TIMER_1_VECTOR, ipl4auto) Timer1Handler(void)
      * Your code goes in between this comment and the following one with asterisks.
      **************************************************************************************************/
 
-    static bottomEvent = ButtonsCheckEvents;
+    
+    bottomEvent.event = ButtonsCheckEvents();
+    if(bottomEvent.event !=  BUTTON_EVENT_NONE){
+        bottomEvent.states = TRUE;
+    }
     /***************************************************************************************************
      * Your code goes in between this comment and the preceding one with asterisks
      **************************************************************************************************/

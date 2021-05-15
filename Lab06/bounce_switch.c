@@ -69,17 +69,17 @@ int main(void)
         static char dif = RIGHT;
         static uint8_t pattern = 0x80;
         
-        if (timer.event == TRUE){
-            timer.event = FALSE;
-            if (pattern == 0x01){
+        if (timer.event == TRUE){                                               //if event is true
+            timer.event = FALSE;                                                //reset it to false
+            if (pattern == 0x01){                                               //if the pattern is at right edge
                 if (dif == LEFT){
-                    pattern <<= 1;
+                    pattern <<= 1;                                              //it would move another way
                 }
-                else if(dif == RIGHT){
+                else if(dif == RIGHT){                                          //change the direction
                     dif = LEFT;
                 }
             }
-            else if (pattern == 0x80){
+            else if (pattern == 0x80){                                          // this is another event when it is left edge
                 if (dif == LEFT){
                     dif = RIGHT;
                 }
@@ -87,7 +87,7 @@ int main(void)
                     pattern >>= 1;
                 }
             }
-            else{
+            else{                                                               //if it is in the middle should be move on
                 if (dif == LEFT){
                     pattern <<= 1;
                 }

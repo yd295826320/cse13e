@@ -92,7 +92,7 @@ int main(void)
                 timerC.event = FALSE;
                 printf("C ");
                 LED3 = LEDS_GET();
-                LEDS_SET(LED3 ^0x03);
+                LEDS_SET(LED3 ^0x04);
             }
             
         }
