@@ -1,7 +1,7 @@
 // **** Include libraries here ****
 // Standard libraries
 #include <stdio.h>
-
+#include <string.h>
 //CSE13E Support Library
 #include "BOARD.h"
 #include "Adc.h"
@@ -17,14 +17,10 @@
 #include <sys/attribs.h>
 
 
-
-// **** Set any macros or preprocessor directives here ****
-
-
-
+#define TIMER_2HZ_RESET() (TMR1 = 0)
 // **** Set any local typedefs here ****
 typedef enum {
-    SETUP, SELECTOR_CHANGE_PENDING, COOKING, RESET_PENDING
+    SETUP, SELECTOR_CHANGE_PENDING, COOKING, RESET_PENDING, EXTRA_CREDIT
 } OvenState;
 
 typedef enum {
@@ -45,23 +41,25 @@ typedef struct {
     uint16_t cooktime;
     uint16_t cooktimeremain;
     uint16_t temp;
-    uint16_t buttontime;
     Toastmode mode;
     Selector selectmode;
-    uint16_t starttime;
+    uint16_t buttonpress;
     uint16_t freeRunningTimer;
     uint16_t ElapsedTime;
+    uint16_t NUM_SW;
+    
     //add more members to this struct
     //add cooktime
     //add cooktime remaining
     //add a temp
 } OvenData;
-OvenData ovenData;
+static OvenData ovenData;
 // **** Declare any datatypes here ****
 #define LONG_PRESS 5
 #define Min_Time 1
 #define Min_Temp 300
 #define NUM_LED 8
+#define LED_ON 0xFF
 #define OVEN_TOP_ON_5 "\x01\x01\x01\x01\x01"
 #define OVEN_TOP_OFF_5 "\x02\x02\x02\x02\x02"
 #define OVEN_BOTTOM_ON_5 "\x03\x03\x03\x03\x03"
@@ -69,81 +67,71 @@ OvenData ovenData;
 #define DEGREE_SYMBOL "\xF8"
 
 // **** Define any module-level, global, or external variables here ****
+//varibles
+static uint16_t LED;
+static char current_LED;
+static uint16_t init_temp;
+static uint16_t TimerCountdown = 0;
+static uint16_t freerunningtimer_init = 0;
+// Events
 static uint8_t AdcEvent = FALSE;
-static uint8_t ButtonEvent = FALSE;
-static uint8_t TimerTickEvent = FALSE;
-
+static uint8_t ButtonEvent = BUTTON_EVENT_NONE;
+static uint16_t TimerTickEvent = FALSE;
+static uint8_t inverse = FALSE;
 // **** Put any helper functions here ****
-void updateLED(){
-    //ADC% * numbers of LEDS
-    if (ovenData.state == COOKING || ovenData.state == RESET_PENDING){
-        (NUM_LED * ovenData.cooktimeremain) / ovenData.cooktime;
-    }
-    else{
-        LEDS_SET(0);                         //LED
-    }
-    
-    
-}
+
 
 /*This function will update your OLED to reflect the state .*/
 void updateOvenOLED(OvenData ovenData){
     //update OLED here
     char display[100] = "";
-    OledClear(OLED_COLOR_BLACK);
     
-    int Temp = ovenData.temp;
+    
     if (ovenData.mode == Bake){                                                 //setup selector cooking and reset pending
         char *mode = "BAKE";
-  
-        if (ovenData.state == SETUP){
-            sprintf(display,
+        if (ovenData.state == SETUP || ovenData.state == SELECTOR_CHANGE_PENDING){
+            if (ovenData.selectmode == Time){
+                sprintf(display,
                     "|%s|  MODE:%s\n"
-                    "|     | >TIME:%i:%i\n"
+                    "|     | >TIME: %i:%i\n"
                     "|-----|  TEMP:%i%sF\n"
                     "|%s|  \n",
                     OVEN_TOP_OFF_5, mode, ovenData.cooktime / 60, ovenData.cooktime % 60, ovenData.temp,DEGREE_SYMBOL, OVEN_BOTTOM_OFF_5);
+            }
+            else{
+                sprintf(display,
+                    "|%s|  MODE:%s\n"
+                    "|     |  TIME: %i:%i\n"
+                    "|-----| >TEMP:%i%sF\n"
+                    "|%s|  \n",
+                    OVEN_TOP_OFF_5, mode, ovenData.cooktime / 60, ovenData.cooktime % 60, ovenData.temp,DEGREE_SYMBOL, OVEN_BOTTOM_OFF_5);
+            }
+            
         }
         if (ovenData.state == COOKING){
             sprintf(display,
                     "|%s|  MODE:%s\n"
-                    "|     |  TIME:%i:%i\n"
+                    "|     |  TIME: %i:%i\n"
                     "|-----|  TEMP:%i%sF\n"
                     "|%s|  \n",
                     OVEN_TOP_ON_5, mode, ovenData.cooktimeremain / 60, ovenData.cooktimeremain % 60, ovenData.temp,DEGREE_SYMBOL, OVEN_BOTTOM_ON_5);
         }
-        if (ovenData.state == SELECTOR_CHANGE_PENDING || ovenData.state == RESET_PENDING){
-            if (ovenData.selectmode == Time){
-                char *Time = '>';
-                char *Temp = ' ';
-            }
-            else if (ovenData.selectmode == Temp){
-                char *Time = ' ';
-                char *Temp = '>';
-            }
-            sprintf(display,
-                    "|%s|  MODE:%s\n"
-                    "|     | %cTIME:%i:%i\n"
-                    "|-----| %cTEMP:%i%sF\n"
-                    "|%s|  \n",
-                    OVEN_TOP_ON_5, mode,Time, ovenData.cooktimeremain / 60, ovenData.cooktimeremain % 60,Temp, ovenData.temp,DEGREE_SYMBOL, OVEN_BOTTOM_ON_5);
-        }
+        
     } 
     if (ovenData.mode == Toast){                                                 //setup selector cooking and reset pending
         char *mode = "Toast";
-  
-        if (ovenData.state == SETUP){
+        if (ovenData.state == SETUP || ovenData.state == SELECTOR_CHANGE_PENDING){
             sprintf(display,
                     "|%s|  MODE:%s\n"
-                    "|     | >TIME:%i:%i\n"
+                    "|     |  TIME: %i:%i\n"
                     "|-----|  \n"
                     "|%s|  \n",
                     OVEN_TOP_OFF_5, mode, ovenData.cooktime / 60, ovenData.cooktime % 60, OVEN_BOTTOM_OFF_5);
         }
-        if (ovenData.state == COOKING){
+        else{
             sprintf(display,
                     "|%s|  MODE:%s\n"
-                    "|     |  TIME:%i:%i\n"
+                    "|     |  TIME: %i:%i\n"
                     "|-----|  \n"
                     "|%s|  \n",
                     OVEN_TOP_OFF_5, mode, ovenData.cooktimeremain / 60, ovenData.cooktimeremain % 60,  OVEN_BOTTOM_ON_5);
@@ -151,28 +139,38 @@ void updateOvenOLED(OvenData ovenData){
     }
     if (ovenData.mode == Broil){                                                 //setup selector cooking and reset pending
         char *mode = "Broil";
-  
-        if (ovenData.state == SETUP){
-            sprintf(display,
+        if (ovenData.state == SETUP || ovenData.state == SELECTOR_CHANGE_PENDING){
+            if (ovenData.selectmode == Time){
+                sprintf(display,
                     "|%s|  MODE:%s\n"
-                    "|     | >TIME:%i:%i\n"
-                    "|-----|  TEMP:%i%sF\n"
+                    "|     | >TIME: %i:%i\n"
+                    "|-----|  TEMP:500%sF\n"
                     "|%s|  \n",
-                    OVEN_TOP_OFF_5, mode, ovenData.cooktime / 60, ovenData.cooktime % 60, ovenData.temp,DEGREE_SYMBOL, OVEN_BOTTOM_OFF_5);
+                    OVEN_TOP_OFF_5, mode, ovenData.cooktime / 60, ovenData.cooktime % 60,DEGREE_SYMBOL, OVEN_BOTTOM_OFF_5);
+            }
         }
-        if (ovenData.state == COOKING){
-            sprintf(display,
+            else{
+                sprintf(display,
                     "|%s|  MODE:%s\n"
-                    "|     |  TIME:%i:%i\n"
-                    "|-----|  TEMP:%i%sF\n"
+                    "|     |  TIME: %i:%i\n"
+                    "|-----|  TEMP:500%sF\n"
                     "|%s|  \n",
-                    OVEN_TOP_ON_5, mode, ovenData.cooktimeremain / 60, ovenData.cooktimeremain % 60, ovenData.temp,DEGREE_SYMBOL, OVEN_BOTTOM_OFF_5);
+                    OVEN_TOP_ON_5, mode, ovenData.cooktimeremain / 60, ovenData.cooktimeremain % 60,DEGREE_SYMBOL, OVEN_BOTTOM_OFF_5);
+            }
+            
+        
+    }
+    OledClear(OLED_COLOR_BLACK);
+    OledDrawString(display);
+    if (ovenData.state == EXTRA_CREDIT) {                                       //if the state is at the end of cooking
+        if (inverse) {
+            OledSetDisplayNormal();                                             //if it is true then display normally
+        } 
+        else {
+            OledSetDisplayInverted();                                           //if is false then display the inverse
         }
     }
-    OledDrawString(display);
     OledUpdate();
-    
-    
     
     //row1
     //row2
@@ -188,57 +186,59 @@ void updateOvenOLED(OvenData ovenData){
  * It should ONLY run if an event flag has been set.*/
 void runOvenSM(void)
 {
-    //write your SM logic here.
     switch (ovenData.state){
         case SETUP:
-            /*
-             * if ADCevent == TRUE
-             *      update time
-             *          only if the selector in at time selector
-             *          total cook time gets saved here
-             *      update temp
-             *          only if the selector is at temp selector
-             *          temp gets saved here
-             * if buttonEvent & BTN_EVENT_4DOWN
-             *      store free running timer to at start time variable (static uint_16)
-             *      store total cook time
-             *      ovenData.state = COOKING
-             * else if buttonEvent & BTN_EVENT_3DOWN
-             *      store free running timer to a start time variable (static uin16_t)
-             *      ovenData.state = SELECTER_CHANGE_PENDING
-             */
-            if (AdcChanged){
-                if (ovenData.selectmode == Time){
-                    ovenData.cooktime = (AdcRead() >> 2) + Min_Time;
-                    
-                }
-                if (ovenData.selectmode == Temp){
+           if (AdcChanged){
+                if (ovenData.mode == Bake && ovenData.selectmode == Temp) {
                     ovenData.temp = (AdcRead() >> 2) + Min_Temp;
+                } else {
+                    ovenData.cooktime = (AdcRead() >> 2) + Min_Time;
+                    ovenData.cooktimeremain = ovenData.cooktime;
                 }
                 updateOvenOLED(ovenData);                                               //inside the ())
             }
-            if (ButtonsCheckEvents && BUTTON_EVENT_4DOWN){
-                ovenData.starttime = ovenData.freeRunningTimer;
-                updateOvenOLED(ovenData);
-                updateLED(ovenData);
-                ovenData.state = COOKING;
-
-            }
-            else if (ButtonsCheckEvents && BUTTON_EVENT_3DOWN){
-                ovenData.starttime = ovenData.freeRunningTimer;
+           if (ButtonEvent & BUTTON_EVENT_3DOWN){
+                ovenData.buttonpress = ovenData.freeRunningTimer;
                 ovenData.state = SELECTOR_CHANGE_PENDING;
             }
+            if (ButtonEvent & BUTTON_EVENT_4DOWN){
+                freerunningtimer_init = ovenData.freeRunningTimer;
+                updateOvenOLED(ovenData);
+                LEDS_SET(0xFF);                                                 //turn on all the light
+                LED = (ovenData.cooktime * 5) / 8;                              //calculate what is 1/8 of the cooktime
+                TimerCountdown = 0;                                             //initialize the countdown
+                ovenData.state = COOKING;
+            }
+            
             break;
         case SELECTOR_CHANGE_PENDING:
-            if (ButtonsCheckEvents && BUTTON_EVENT_3UP){
-                ovenData.ElapsedTime = ovenData.freeRunningTimer - ovenData.starttime;
-                if (ovenData.ElapsedTime < LONG_PRESS){                                  
-                    ovenData.mode = (ovenData.mode + 1) % 3;                                             
+            if (ButtonEvent & BUTTON_EVENT_3UP){
+                ovenData.ElapsedTime = ovenData.freeRunningTimer - ovenData.buttonpress;
+                
+                if (ovenData.ElapsedTime < LONG_PRESS){                         //if it is a quick press         
+                    if (ovenData.mode == Broil){                                //when it is at the broil mode turn to bake mode
+                        ovenData.mode = Bake;
+                    }
+                    else{                                                       //otherwise it would just turn to next one
+                        ovenData.mode++;
+                    }
+                    if (ovenData.mode == Broil){                                //when it is Broil the temp is alway 500
+                        init_temp = ovenData.temp;
+                        ovenData.temp = 500;
+                    } 
+                    if (ovenData.mode == Bake){                                 //Bake mode temp would change witht the adc
+                        ovenData.temp = init_temp;
+                    }                                             
                     updateOvenOLED(ovenData);
                     ovenData.state = SETUP;
                 }
                 else{
-                    ovenData.selectmode = (ovenData.selectmode + 1) % 2;
+                    if (ovenData.selectmode == Time){                           //when it is time switch to temp
+                        ovenData.selectmode = Temp;
+                    }
+                    else{
+                        ovenData.selectmode = Time;
+                    }
                     updateOvenOLED(ovenData);
                     ovenData.state = SETUP;
                 }
@@ -246,46 +246,78 @@ void runOvenSM(void)
             break;
         case COOKING:
             if (TimerTickEvent){
-                if (ovenData.cooktime > 0){
-                    ovenData.cooktimeremain = ovenData.cooktime - (ovenData.ElapsedTime / 5);
-                    updateOvenOLED(ovenData);
-                    updateLED(ovenData);
-                    ovenData.state = COOKING;
+                TimerCountdown++;                                               //countint how many times does timertickevent happens
+                if (TimerCountdown == LED){                                     //when the event happens with the 8 times and it is should be take off one LED
+                    TimerCountdown = 0;
+                    current_LED = LEDS_GET();
+                    LEDS_SET(current_LED << 1);
                 }
-                else{
-                     //starttime                                                           //reset setting
-                    ovenData.cooktimeremain = ovenData.cooktime;
+                
+                
+                if (ovenData.cooktimeremain == 0) {                             //when the countdown reach 0, it should go to extra creidt mode and update the LED
+                    ovenData.cooktimeremain = ovenData.cooktime;                //reset to the orignal data
+                    ovenData.state = EXTRA_CREDIT;
                     updateOvenOLED(ovenData);
-                    ovenData.state = SETUP;
+                    LEDS_SET(0x00);
+                    break;
+                }
+                if ((ovenData.freeRunningTimer - freerunningtimer_init) % 5 == 0) {  //for every 5 is one sec which should count down one and update the OLED
+                    ovenData.cooktimeremain--;
+                    updateOvenOLED(ovenData);
                 }
             }
-            if (BUTTON_EVENT_4DOWN){
-                ovenData.starttime = ovenData.freeRunningTimer;
+            if (ButtonEvent & BUTTON_EVENT_4DOWN){                              //when the button 4 is down it goes to Reset pending
+                ovenData.buttonpress = ovenData.freeRunningTimer;
                 ovenData.state = RESET_PENDING;
             }
             break;
         case RESET_PENDING:
-            if (BUTTON_EVENT_4UP){
-                ovenData.state = COOKING;
-            }
-            if (TimerTickEvent){
-                ovenData.ElapsedTime = ovenData.freeRunningTimer - ovenData.starttime;
+            if (TimerTickEvent){                                                //same as cooking keep tracks of the timertickevent
+                TimerCountdown++;
+                if (TimerCountdown == LED){                                     //it will turn off when it is equal to the number of timertickevent                        
+                    current_LED = LEDS_GET();
+                    TimerCountdown = 0;
+                    LEDS_SET(current_LED << 1);
+                }
+                if ((ovenData.freeRunningTimer - freerunningtimer_init) % 5 == 0) { //count down cooking time left
+                    if (ovenData.cooktimeremain) {
+                        ovenData.cooktimeremain--;
+                        updateOvenOLED(ovenData);
+                    }
+                }
+                ovenData.ElapsedTime = ovenData.freeRunningTimer - ovenData.buttonpress;
                 if (ovenData.ElapsedTime >= LONG_PRESS){
                                                                                 //end cooking
                     //reset setting
                     ovenData.cooktimeremain = ovenData.cooktime;
-                    updateOvenOLED(ovenData);
-                    updateLED(ovenData);
                     ovenData.state = SETUP;
-                }
-                else{
                     updateOvenOLED(ovenData);
-                    updateLED(ovenData);
-                    ovenData.state = RESET_PENDING;
+                    LEDS_SET(0x00);
+                    
                 }
+                
+                
+            }
+            if (ButtonEvent & BUTTON_EVENT_4UP ) { 
+                    ovenData.state = COOKING;
             }
             
-            
+            break;
+        case EXTRA_CREDIT:
+            if (TimerTickEvent) {                                               //when the cooking is down if the inverse is False set it to True and if it's true then set to False
+                if (inverse) {
+                    inverse = FALSE;
+                } 
+                else {
+                    inverse = TRUE;
+                }
+                updateOvenOLED(ovenData);                       
+            }
+            if (ButtonEvent & BUTTON_EVENT_4UP) {                               //when we press the button 4 again it will return to set up 
+                inverse = TRUE;                                                 //and reset it to True.
+                ovenData.state = SETUP;
+                updateOvenOLED(ovenData);
+            }
             break;
         //default:
             //print ot OLED an error occur
@@ -293,6 +325,8 @@ void runOvenSM(void)
             //while(1);
             //break;
           
+            
+        
     }
 }
 
@@ -341,52 +375,32 @@ int main()
 
     //initialize state machine (and anything else you need to init) here
     ovenData.state = SETUP;
-    ovenData.cooktimeremain = 0;
-    //updateOvenOLED(ovenData);
+    ovenData.selectmode = Time;
+    ovenData.mode = Bake;
+    ovenData.cooktimeremain = 1;
+    ovenData.cooktime = 1;
+    ovenData.buttonpress = 0;
+    ovenData.temp = 350;
     while (1){
-        // Add main loop code here:
-        // check for events
-        // on event, run runOvenSM()
-        // clear event flags
-        if (AdcEvent){                                                          //question
-            
+        
+     if (AdcEvent){ 
             runOvenSM();
             AdcEvent = FALSE;
-            //updateOvenOLED(ovenData);
-            //updateLED(ovenData);
+            
             
         }
-        if (ButtonEvent){
+        if (ButtonEvent != BUTTON_EVENT_NONE){
             runOvenSM();
-            ButtonEvent = FALSE;
-            //updateOvenOLED(ovenData);
-            //updateLED(ovenData);
+            ButtonEvent = BUTTON_EVENT_NONE;
+            
         }
         if (TimerTickEvent){
             runOvenSM();
             TimerTickEvent = FALSE;
-            //updateOvenOLED(ovenData);
-            //updateLED(ovenData);
+            
         }
     };
-    //three different if statement
-    /*
-        if ADC event{
-     *      on event, run runOvenSM
-     *      clear event flags
-     *      updateLEDS
-     *      updateOLED
-     *  if Button event
-     *      on event, run runOvenSM
-     *      clear event flags
-     *      updateLEDS
-     *      updateOLED
-     *  if Timer Tick event
-     *      on event, run runOvenSM
-     *      clear event flags
-     *      updateLEDS
-     *      updateOLED
-     */
+   
 }
 
 
@@ -398,9 +412,8 @@ void __ISR(_TIMER_3_VECTOR, ipl4auto) TimerInterrupt5Hz(void)
     //free run timer
     ovenData.freeRunningTimer ++;
     //add event-checking code here
-    if (ovenData.state == COOKING || ovenData.state == RESET_PENDING){
-        TimerTickEvent = TRUE;
-    }
+    
+    TimerTickEvent = TRUE;
     
 }
 
@@ -409,15 +422,12 @@ void __ISR(_TIMER_3_VECTOR, ipl4auto) TimerInterrupt5Hz(void)
 void __ISR(_TIMER_2_VECTOR, ipl4auto) TimerInterrupt100Hz(void)
 {
     // Clear the interrupt flag.
-    IFS0CLR = 1 << 8;
-    if (ButtonsCheckEvents){
-        ButtonEvent = TRUE;
-    }
-    if (AdcChanged){
-        AdcEvent = TRUE;
-    }
-    //add event-checking code here
-    //check button event
-    //check adc event
-    //save adc reading as a var
+   IFS0CLR = 1 << 8;
+    
+    
+    ButtonEvent = ButtonsCheckEvents();
+    AdcEvent = AdcChanged();
+    
+    
+    
 }
