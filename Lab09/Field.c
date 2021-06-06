@@ -316,16 +316,15 @@ uint8_t FieldAddBoat(Field *own_field, uint8_t row, uint8_t col, BoatDirection d
     switch(dir){
         case FIELD_DIR_EAST:
             
-            while (row < FIELD_ROWS && j < FIELD_COLS){
+            while (row < FIELD_ROWS){
                 if (FieldGetSquareStatus(own_field, row, j) == FIELD_SQUARE_EMPTY){
-                    
                     if (boat_type == FIELD_BOAT_TYPE_SMALL){
                         if ((col+FIELD_BOAT_SIZE_SMALL) > FIELD_COLS){
                             return STANDARD_ERROR;
+                            break;
                         }
                         own_field ->grid[row][j] = FIELD_SQUARE_SMALL_BOAT;
                         j++;
-                        own_field ->smallBoatLives++;
                         if (j == col + FIELD_BOAT_SIZE_SMALL){
                             break;
                         }
@@ -333,22 +332,21 @@ uint8_t FieldAddBoat(Field *own_field, uint8_t row, uint8_t col, BoatDirection d
                     if (boat_type == FIELD_BOAT_TYPE_MEDIUM){
                         if ((col+FIELD_BOAT_SIZE_MEDIUM) > FIELD_COLS){
                             return STANDARD_ERROR;
-                        }
-                        if (j == col + FIELD_BOAT_SIZE_MEDIUM){
                             break;
                         }
                         own_field ->grid[row][j] = FIELD_SQUARE_MEDIUM_BOAT;
                         j++;
-                        own_field ->mediumBoatLives++;
-                        
+                        if (j == col + FIELD_BOAT_SIZE_MEDIUM){
+                            break;
+                        }
                     }
                     if (boat_type == FIELD_BOAT_TYPE_LARGE){
                         if ((col+FIELD_BOAT_SIZE_LARGE) > FIELD_COLS){
                             return STANDARD_ERROR;
+                            break;
                         }
                         own_field ->grid[row][j] = FIELD_SQUARE_LARGE_BOAT;
                         j++;
-                        own_field ->largeBoatLives++;
                         if (j == col + FIELD_BOAT_SIZE_LARGE){
                             break;
                         }
@@ -356,10 +354,10 @@ uint8_t FieldAddBoat(Field *own_field, uint8_t row, uint8_t col, BoatDirection d
                     if (boat_type == FIELD_BOAT_TYPE_HUGE){
                         if ((col+FIELD_BOAT_SIZE_HUGE) > FIELD_COLS){
                             return STANDARD_ERROR;
+                            break;
                         }
                         own_field ->grid[row][j] = FIELD_SQUARE_HUGE_BOAT;
                         j++;
-                        own_field ->hugeBoatLives++;
                         if (j == col + FIELD_BOAT_SIZE_HUGE){
                             break;
                         }
@@ -374,16 +372,16 @@ uint8_t FieldAddBoat(Field *own_field, uint8_t row, uint8_t col, BoatDirection d
             
         case FIELD_DIR_SOUTH:
             
-            while (i < FIELD_ROWS && col < FIELD_COLS){
+            while (col < FIELD_COLS){
                 if (FieldGetSquareStatus(own_field, i, col) == FIELD_SQUARE_EMPTY){
                     
                     if (boat_type == FIELD_BOAT_TYPE_SMALL){
                         if ((row+FIELD_BOAT_SIZE_SMALL) > FIELD_ROWS){
                             return STANDARD_ERROR;
+                            break;
                         }
                         own_field ->grid[i][col] = FIELD_SQUARE_SMALL_BOAT;
                         i++;
-                        own_field ->smallBoatLives++;
                         if (i == row + FIELD_BOAT_SIZE_SMALL){
                             break;
                         }
@@ -391,10 +389,10 @@ uint8_t FieldAddBoat(Field *own_field, uint8_t row, uint8_t col, BoatDirection d
                     if (boat_type == FIELD_BOAT_TYPE_MEDIUM){
                         if ((row+FIELD_BOAT_SIZE_MEDIUM) > FIELD_ROWS){
                             return STANDARD_ERROR;
+                            break;
                         }
                         own_field ->grid[i][col] = FIELD_SQUARE_MEDIUM_BOAT;
                         i++;
-                        own_field ->mediumBoatLives++;
                         if (i == row + FIELD_BOAT_SIZE_MEDIUM){
                             break;
                         }
@@ -402,10 +400,10 @@ uint8_t FieldAddBoat(Field *own_field, uint8_t row, uint8_t col, BoatDirection d
                     if (boat_type == FIELD_BOAT_TYPE_LARGE){
                         if ((row+FIELD_BOAT_SIZE_LARGE) > FIELD_ROWS){
                             return STANDARD_ERROR;
+                            break;
                         }
                         own_field ->grid[i][col] = FIELD_SQUARE_LARGE_BOAT;
                         i++;
-                        own_field ->largeBoatLives++;
                         if (i == row + FIELD_BOAT_SIZE_LARGE){
                             break;
                         }
@@ -413,14 +411,17 @@ uint8_t FieldAddBoat(Field *own_field, uint8_t row, uint8_t col, BoatDirection d
                     if (boat_type == FIELD_BOAT_TYPE_HUGE){
                         if ((row+FIELD_BOAT_SIZE_HUGE) > FIELD_ROWS){
                             return STANDARD_ERROR;
+                            break;
                         }
                         own_field ->grid[i][col] = FIELD_SQUARE_HUGE_BOAT;
                         i++;
-                        own_field ->hugeBoatLives++;
                         if (i == row + FIELD_BOAT_SIZE_HUGE){
                             break;
                         }
                     }
+                }
+                else{
+                    return STANDARD_ERROR;
                 }
             }
             
@@ -582,11 +583,11 @@ uint8_t FieldGetBoatStates(const Field *f){
  * This function should never fail when passed a properly initialized field!
  */
 uint8_t FieldAIPlaceAllBoats(Field *own_field){
-    uint8_t success = 0;
-    uint8_t check1 = STANDARD_ERROR;
-    uint8_t check2 = STANDARD_ERROR;
-    uint8_t check3 = STANDARD_ERROR;
-    uint8_t check4 = STANDARD_ERROR;
+    static uint8_t success = 0;
+    static uint8_t check1 = STANDARD_ERROR;
+    static uint8_t check2 = STANDARD_ERROR;
+    static uint8_t check3 = STANDARD_ERROR;
+    static uint8_t check4 = STANDARD_ERROR;
     while(1){
         //randomize col, row and dir only up to max
         uint8_t randomdirection = rand() % 2;
@@ -632,7 +633,8 @@ uint8_t FieldAIPlaceAllBoats(Field *own_field){
         if (success == 4){
             break;
         }
-       
+        
+    return SUCCESS;   
         /*
         if (FieldAddBoat(own_field,randomcol,randomrow,boatdir,FIELD_BOAT_TYPE_SMALL)){
             success+=1;
@@ -657,7 +659,7 @@ uint8_t FieldAIPlaceAllBoats(Field *own_field){
     // for each type of boat
     // while fieldaddboat(rand(col)...) != success
     
-    return SUCCESS;
+    
     
 }
 
