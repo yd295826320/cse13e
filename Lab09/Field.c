@@ -313,118 +313,157 @@ uint8_t FieldAddBoat(Field *own_field, uint8_t row, uint8_t col, BoatDirection d
     // if boat type == small then boat lives should be equal to 3 if row equal boat lives then success
     uint8_t i = row;
     uint8_t j = col;
+    uint8_t check_i = row;
+    uint8_t check_j = col;
     switch(dir){
         case FIELD_DIR_EAST:
             
-            while (row < FIELD_ROWS){
-                if (FieldGetSquareStatus(own_field, row, j) == FIELD_SQUARE_EMPTY){
+            //while (row < FIELD_ROWS){
+                //if (FieldGetSquareStatus(own_field, row, j) == FIELD_SQUARE_EMPTY){
                     if (boat_type == FIELD_BOAT_TYPE_SMALL){
                         if ((col+FIELD_BOAT_SIZE_SMALL) > FIELD_COLS){
                             return STANDARD_ERROR;
                             break;
                         }
-                        own_field ->grid[row][j] = FIELD_SQUARE_SMALL_BOAT;
-                        j++;
-                        if (j == col + FIELD_BOAT_SIZE_SMALL){
-                            break;
+                        for (check_j = col; check_j < (col+FIELD_BOAT_SIZE_SMALL); check_j++){
+                            if (FieldGetSquareStatus(own_field, row, check_j) != FIELD_SQUARE_EMPTY){
+                                return STANDARD_ERROR;
+                            }
                         }
+                        for (j = col; j < (col+FIELD_BOAT_SIZE_SMALL); j++){
+                            own_field ->grid[row][j] = FIELD_SQUARE_SMALL_BOAT;
+                        }
+                        break;
                     }
                     if (boat_type == FIELD_BOAT_TYPE_MEDIUM){
                         if ((col+FIELD_BOAT_SIZE_MEDIUM) > FIELD_COLS){
                             return STANDARD_ERROR;
                             break;
                         }
-                        own_field ->grid[row][j] = FIELD_SQUARE_MEDIUM_BOAT;
-                        j++;
-                        if (j == col + FIELD_BOAT_SIZE_MEDIUM){
-                            break;
+                        for (check_j = col; check_j < (col+FIELD_BOAT_SIZE_MEDIUM); check_j++){
+                            if (FieldGetSquareStatus(own_field, row, check_j) != FIELD_SQUARE_EMPTY){
+                                return STANDARD_ERROR;
+                            }
                         }
+                        for (j = col; j < (col+FIELD_BOAT_SIZE_MEDIUM); j++){
+                            own_field ->grid[row][j] = FIELD_SQUARE_MEDIUM_BOAT;
+                        }
+                        break;
                     }
                     if (boat_type == FIELD_BOAT_TYPE_LARGE){
                         if ((col+FIELD_BOAT_SIZE_LARGE) > FIELD_COLS){
                             return STANDARD_ERROR;
                             break;
                         }
-                        own_field ->grid[row][j] = FIELD_SQUARE_LARGE_BOAT;
-                        j++;
-                        if (j == col + FIELD_BOAT_SIZE_LARGE){
-                            break;
+                        for (check_j = col; check_j < (col+FIELD_BOAT_SIZE_LARGE); check_j++){
+                            if (FieldGetSquareStatus(own_field, row, check_j) != FIELD_SQUARE_EMPTY){
+                                return STANDARD_ERROR;
+                            }
                         }
+                        for (j = col; j < (col+FIELD_BOAT_SIZE_LARGE); j++){
+                            own_field ->grid[row][j] = FIELD_SQUARE_LARGE_BOAT;
+                        }
+                        break;
+                        
                     }
                     if (boat_type == FIELD_BOAT_TYPE_HUGE){
                         if ((col+FIELD_BOAT_SIZE_HUGE) > FIELD_COLS){
                             return STANDARD_ERROR;
                             break;
                         }
-                        own_field ->grid[row][j] = FIELD_SQUARE_HUGE_BOAT;
-                        j++;
-                        if (j == col + FIELD_BOAT_SIZE_HUGE){
-                            break;
+                        for (check_j = col; check_j < (col+FIELD_BOAT_SIZE_HUGE); check_j++){
+                            if (FieldGetSquareStatus(own_field, row, check_j) != FIELD_SQUARE_EMPTY){
+                                return STANDARD_ERROR;
+                            }
                         }
+                        for (j = col; j < (col+FIELD_BOAT_SIZE_HUGE); j++){
+                            own_field ->grid[row][j] = FIELD_SQUARE_HUGE_BOAT;
+                        }
+                        break;
+                        
                     }
-                }
-                else{
-                    return STANDARD_ERROR;
-                }
-            }
+                //}
+                //else{
+                    //return STANDARD_ERROR;
+                //}
+            
             break;
                
             
         case FIELD_DIR_SOUTH:
             
-            while (col < FIELD_COLS){
-                if (FieldGetSquareStatus(own_field, i, col) == FIELD_SQUARE_EMPTY){
+            //while (col < FIELD_COLS){
+                //if (FieldGetSquareStatus(own_field, i, col) == FIELD_SQUARE_EMPTY){
                     
                     if (boat_type == FIELD_BOAT_TYPE_SMALL){
                         if ((row+FIELD_BOAT_SIZE_SMALL) > FIELD_ROWS){
                             return STANDARD_ERROR;
                             break;
                         }
-                        own_field ->grid[i][col] = FIELD_SQUARE_SMALL_BOAT;
-                        i++;
-                        if (i == row + FIELD_BOAT_SIZE_SMALL){
-                            break;
+                        for (check_i = row; check_i < (row+FIELD_BOAT_SIZE_SMALL); check_i++){
+                            if (FieldGetSquareStatus(own_field, check_i, col) != FIELD_SQUARE_EMPTY){
+                                return STANDARD_ERROR;
+                            }
                         }
+                        for (i = row; i < (row+FIELD_BOAT_SIZE_SMALL); i++){
+                            own_field ->grid[i][col] = FIELD_SQUARE_SMALL_BOAT;
+                        }
+                        
+                        break;
                     }
                     if (boat_type == FIELD_BOAT_TYPE_MEDIUM){
                         if ((row+FIELD_BOAT_SIZE_MEDIUM) > FIELD_ROWS){
                             return STANDARD_ERROR;
                             break;
                         }
-                        own_field ->grid[i][col] = FIELD_SQUARE_MEDIUM_BOAT;
-                        i++;
-                        if (i == row + FIELD_BOAT_SIZE_MEDIUM){
-                            break;
+                        for (check_i = row; check_i < (row+FIELD_BOAT_SIZE_MEDIUM); check_i++){
+                            if (FieldGetSquareStatus(own_field, check_i, col) != FIELD_SQUARE_EMPTY){
+                                return STANDARD_ERROR;
+                            }
                         }
+                        for (i = row; i < (row+FIELD_BOAT_SIZE_MEDIUM); i++){
+                            own_field ->grid[i][col] = FIELD_SQUARE_MEDIUM_BOAT;
+                        }
+                        
+                        break;
                     }
                     if (boat_type == FIELD_BOAT_TYPE_LARGE){
                         if ((row+FIELD_BOAT_SIZE_LARGE) > FIELD_ROWS){
                             return STANDARD_ERROR;
                             break;
                         }
-                        own_field ->grid[i][col] = FIELD_SQUARE_LARGE_BOAT;
-                        i++;
-                        if (i == row + FIELD_BOAT_SIZE_LARGE){
-                            break;
+                        for (check_i = row; check_i < (row+FIELD_BOAT_SIZE_LARGE); check_i++){
+                            if (FieldGetSquareStatus(own_field, check_i, col) != FIELD_SQUARE_EMPTY){
+                                return STANDARD_ERROR;
+                            }
                         }
+                        for (i = row; i < (row+FIELD_BOAT_SIZE_LARGE); i++){
+                            own_field ->grid[i][col] = FIELD_SQUARE_LARGE_BOAT;
+                        }
+                        
+                        break;
+                        
                     }
                     if (boat_type == FIELD_BOAT_TYPE_HUGE){
                         if ((row+FIELD_BOAT_SIZE_HUGE) > FIELD_ROWS){
                             return STANDARD_ERROR;
                             break;
                         }
-                        own_field ->grid[i][col] = FIELD_SQUARE_HUGE_BOAT;
-                        i++;
-                        if (i == row + FIELD_BOAT_SIZE_HUGE){
-                            break;
+                        for (check_i = row; check_i < (row+FIELD_BOAT_SIZE_HUGE); check_i++){
+                            if (FieldGetSquareStatus(own_field, check_i, col) != FIELD_SQUARE_EMPTY){
+                                return STANDARD_ERROR;
+                            }
                         }
+                        for (i = row; i < (row+FIELD_BOAT_SIZE_HUGE); i++){
+                            own_field ->grid[i][col] = FIELD_SQUARE_HUGE_BOAT;
+                        }
+                        break;
                     }
-                }
-                else{
-                    return STANDARD_ERROR;
-                }
-            }
-            
+                //}
+                //else{
+                    //return STANDARD_ERROR;
+               // }
+            //}
             break;
     }
     if (boat_type == FIELD_BOAT_TYPE_SMALL){
@@ -588,11 +627,11 @@ uint8_t FieldAIPlaceAllBoats(Field *own_field){
     static uint8_t check2 = STANDARD_ERROR;
     static uint8_t check3 = STANDARD_ERROR;
     static uint8_t check4 = STANDARD_ERROR;
+    uint8_t randomdirection;
+    uint8_t randomcol;
+    uint8_t randomrow;
     while(1){
         //randomize col, row and dir only up to max
-        uint8_t randomdirection = rand() % 2;
-        uint8_t randomcol = rand() % FIELD_COLS;
-        uint8_t randomrow = rand() % FIELD_ROWS;
         
         if (check1 == STANDARD_ERROR){
             randomdirection = rand() % 2;
@@ -633,7 +672,7 @@ uint8_t FieldAIPlaceAllBoats(Field *own_field){
         if (success == 4){
             break;
         }
-        
+    }
     return SUCCESS;   
         /*
         if (FieldAddBoat(own_field,randomcol,randomrow,boatdir,FIELD_BOAT_TYPE_SMALL)){
@@ -655,7 +694,7 @@ uint8_t FieldAIPlaceAllBoats(Field *own_field){
         }*/
             //place total 4 boats one for each catagory
             //break after 4 boats placed
-    }
+    
     // for each type of boat
     // while fieldaddboat(rand(col)...) != success
     
