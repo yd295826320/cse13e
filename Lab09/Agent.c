@@ -72,28 +72,29 @@ Message AgentRun(BB_Event event){
         case AGENT_STATE_START:
             if (event.type == BB_EVENT_START_BUTTON){
                 currentState = AGENT_STATE_CHALLENGING;
-                A = rand();
+                A = rand() % 65535;
                 Hash_a = NegotiationHash(A);
                 Messageout.type = MESSAGE_CHA;
                 Messageout.param0 = Hash_a;
                 FieldInit(&own_field,&opp_field);
                 FieldAIPlaceAllBoats(&own_field);
-                FieldAIPlaceAllBoats(&opp_field);
+                
                 
             }
             else if(event.type == BB_EVENT_CHA_RECEIVED){
                 currentState = AGENT_STATE_ACCEPTING;
                 Hash_a = event.param0;
-                B = rand();
+                B = rand() % 65535;
                 Messageout.type = MESSAGE_ACC;
                 Messageout.param0 = B;
-                
+                FieldInit(&own_field,&opp_field);
+                FieldAIPlaceAllBoats(&own_field);
             }
             break;
         case AGENT_STATE_CHALLENGING:
             if (event.type == BB_EVENT_ACC_RECEIVED){
                 Messageout.type = MESSAGE_REV;
-                B = event.param0;
+                B = NegotiationHash(event.param0);
                 Messageout.param0 = A;
                 // updata screen
                 if (NegotiateCoinFlip(A, B) == HEADS){                                   //question
