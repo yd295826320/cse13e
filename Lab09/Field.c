@@ -316,25 +316,25 @@ uint8_t FieldAddBoat(Field *own_field, uint8_t row, uint8_t col, BoatDirection d
     uint8_t check_i = row;
     uint8_t check_j = col;
     switch(dir){
-        case FIELD_DIR_EAST:
+        case FIELD_DIR_EAST:                                                            //check the direction
             
             //while (row < FIELD_ROWS){
                 //if (FieldGetSquareStatus(own_field, row, j) == FIELD_SQUARE_EMPTY){
-                    if (boat_type == FIELD_BOAT_TYPE_SMALL){
-                        if ((col+FIELD_BOAT_SIZE_SMALL) > FIELD_COLS){
+                    if (boat_type == FIELD_BOAT_TYPE_SMALL){                           //check the boat type
+                        if ((col+FIELD_BOAT_SIZE_SMALL) > FIELD_COLS){                 //if the it will be out side the field then don't print at all
                             return STANDARD_ERROR;
                             break;
                         }
-                        for (check_j = col; check_j < (col+FIELD_BOAT_SIZE_SMALL); check_j++){
+                        for (check_j = col; check_j < (col+FIELD_BOAT_SIZE_SMALL); check_j++){              //check for if all the col is going to be empty
                             if (FieldGetSquareStatus(own_field, row, check_j) != FIELD_SQUARE_EMPTY){
                                 return STANDARD_ERROR;
                             }
                         }
-                        for (j = col; j < (col+FIELD_BOAT_SIZE_SMALL); j++){
+                        for (j = col; j < (col+FIELD_BOAT_SIZE_SMALL); j++){                                //if so, then print the boat into the field
                             own_field ->grid[row][j] = FIELD_SQUARE_SMALL_BOAT;
                         }
                         break;
-                    }
+                    }                                                                                       //same for different direction and boats
                     if (boat_type == FIELD_BOAT_TYPE_MEDIUM){
                         if ((col+FIELD_BOAT_SIZE_MEDIUM) > FIELD_COLS){
                             return STANDARD_ERROR;
@@ -395,7 +395,7 @@ uint8_t FieldAddBoat(Field *own_field, uint8_t row, uint8_t col, BoatDirection d
             //while (col < FIELD_COLS){
                 //if (FieldGetSquareStatus(own_field, i, col) == FIELD_SQUARE_EMPTY){
                     
-                    if (boat_type == FIELD_BOAT_TYPE_SMALL){
+                    if (boat_type == FIELD_BOAT_TYPE_SMALL){                                            //
                         if ((row+FIELD_BOAT_SIZE_SMALL) > FIELD_ROWS){
                             return STANDARD_ERROR;
                             break;
@@ -623,57 +623,57 @@ uint8_t FieldGetBoatStates(const Field *f){
  */
 uint8_t FieldAIPlaceAllBoats(Field *own_field){
     static uint8_t success = 0;
-    static uint8_t check1 = STANDARD_ERROR;
-    static uint8_t check2 = STANDARD_ERROR;
-    static uint8_t check3 = STANDARD_ERROR;
-    static uint8_t check4 = STANDARD_ERROR;
+    static uint8_t adding_small = STANDARD_ERROR;
+    static uint8_t adding_medium = STANDARD_ERROR;
+    static uint8_t adding_large = STANDARD_ERROR;
+    static uint8_t adding_huge = STANDARD_ERROR;
     uint8_t randomdirection;
     uint8_t randomcol;
     uint8_t randomrow;
     while(1){
         //randomize col, row and dir only up to max
-        
-        if (check1 == STANDARD_ERROR){
-            randomdirection = rand() % 2;
+        //if adding small is not success then loop again
+        if (adding_small == STANDARD_ERROR){        
+            randomdirection = rand() % 2;               //randomize
             randomcol = rand() % FIELD_COLS;
             randomrow = rand() % FIELD_ROWS;
-            check1 = FieldAddBoat(own_field,randomcol,randomrow,randomdirection,FIELD_BOAT_TYPE_SMALL);
-            if (check1 == SUCCESS){
+            adding_small = FieldAddBoat(own_field,randomcol,randomrow,randomdirection,FIELD_BOAT_TYPE_SMALL);   //if adding small success stop the loop
+            if (adding_small == SUCCESS){                                                                       //success case plus one
                 success += 1;
             }
         }
-        if (check2 == STANDARD_ERROR){
+        if (adding_medium == STANDARD_ERROR){                                                                   //same for medium large and huge
             randomdirection = rand() % 2;
             randomcol = rand() % FIELD_COLS;
             randomrow = rand() % FIELD_ROWS;
-            check2 = FieldAddBoat(own_field,randomcol,randomrow,randomdirection,FIELD_BOAT_TYPE_MEDIUM);
-            if (check2 == SUCCESS){
+            adding_medium = FieldAddBoat(own_field,randomcol,randomrow,randomdirection,FIELD_BOAT_TYPE_MEDIUM);
+            if (adding_medium == SUCCESS){
                 success += 1;
             }
         }
-        if (check3 == STANDARD_ERROR){
+        if (adding_large == STANDARD_ERROR){
             randomdirection = rand() % 2;
             randomcol = rand() % FIELD_COLS;
             randomrow = rand() % FIELD_ROWS;
-            check3 = FieldAddBoat(own_field,randomcol,randomrow,randomdirection,FIELD_BOAT_TYPE_LARGE);
-            if (check3 == SUCCESS){
+            adding_large = FieldAddBoat(own_field,randomcol,randomrow,randomdirection,FIELD_BOAT_TYPE_LARGE);
+            if (adding_large == SUCCESS){
                 success += 1;
             }
         }
-        if (check4 == STANDARD_ERROR){
+        if (adding_huge == STANDARD_ERROR){
             randomdirection = rand() % 2;
             randomcol = rand() % FIELD_COLS;
             randomrow = rand() % FIELD_ROWS;
-            check4 = FieldAddBoat(own_field,randomcol,randomrow,randomdirection,FIELD_BOAT_TYPE_HUGE);
-            if (check4 == SUCCESS){
+            adding_huge = FieldAddBoat(own_field,randomcol,randomrow,randomdirection,FIELD_BOAT_TYPE_HUGE);
+            if (adding_huge == SUCCESS){
                 success += 1;
             }
         }
-        if (success == 4){
+        if (success == 4){                                                      //when the success case equals to 4 then break out the entire while loop
             break;
         }
     }
-    return SUCCESS;   
+    return SUCCESS;                                                                     
         /*
         if (FieldAddBoat(own_field,randomcol,randomrow,boatdir,FIELD_BOAT_TYPE_SMALL)){
             success+=1;
@@ -725,8 +725,8 @@ GuessData FieldAIDecideGuess(const Field *opp_field){
         return_guess.col = horizontal;
         return_guess.row = vertical;
         if (FieldGetSquareStatus(opp_field,return_guess.row, return_guess.col) == FIELD_SQUARE_UNKNOWN){                        //question
-            return return_guess;
-        } //check if it is already guessed 
+            break;
+        } //check if it is already guessed
     }
     return return_guess;
     
